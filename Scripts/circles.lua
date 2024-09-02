@@ -8,6 +8,14 @@ test = {}
 DebugGear = {}
 DebugVisual = {}
 
+function onGearInsideCircle(testgear,testcircle)
+
+end
+
+function onGearOutsideCircle(testgear,testcircle)
+
+end
+
 function AddCircle(x,y,Radius,LineThickness,Color)
 	temp.gear = AddGear(x, y, gtGenericFaller, gstNoGravity+gstInvisible, 0, 0, 2147483647)
 	temp.visual = AddVisualGear(x, y, vgtCircle, Radius, true)
@@ -85,6 +93,28 @@ function TestForGearInsideCircle(testgear,testcircle)
 	local testresult = GetDistFromGearToGear(testgear,testcircle.gear)
 	local testradius = GetCircleRadius(testcircle)
 	if testresult <= testradius^2 then return true else return false end
+end
+
+function TestForStateOfGearInsideCircle(testgear,testcircle)
+	currentState = nil
+
+	if TestForGearInsideCircle(testgear,testcircle) == true then
+		currentState = "inTargetArea"
+	else
+		currentState = "outOfTargetArea"
+	end
+	
+	if currentState ~= previousState then
+		if currentState == "inTargetArea" then
+			--stuff is happening inside the circle
+			onGearInsideCircle(testgear,testcircle)
+		elseif currentState == "outOfTargetArea" then
+			--stuff is happening outside the circle
+			onGearOutsideCircle(testgear,testcircle)
+		end
+	end
+	
+	previousState = currentState
 end
 
 --add a function checking for state changes, which is what i have in island hoppers for toggling airmines
