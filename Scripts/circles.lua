@@ -1,26 +1,15 @@
-function printDebug(message)
-	WriteLnToConsole(message)
-	WriteLnToChat(message)
-end
-
-temp = {}
-test = {}
+tempCircleVar = {}
 DebugGear = {}
 DebugVisual = {}
 
-function onGearInsideCircle(testgear,testcircle)
-
-end
-
-function onGearOutsideCircle(testgear,testcircle)
-
-end
+function onGearInsideCircle(testgear,testcircle) end
+function onGearOutsideCircle(testgear,testcircle) end
 
 function AddCircle(x,y,Radius,LineThickness,Color)
-	temp.gear = AddGear(x, y, gtGenericFaller, gstNoGravity+gstInvisible, 0, 0, 2147483647)
-	temp.visual = AddVisualGear(x, y, vgtCircle, Radius, true)
-	SetVisualGearValues(temp.visual, x, y, nil, nil, 0, nil, nil, Radius, LineThickness, Color, nil)
-	return temp
+	tempCircleVar.gear = AddGear(x, y, gtGenericFaller, gstNoGravity, 0, 0, 2147483647)
+	tempCircleVar.visual = AddVisualGear(x, y, vgtCircle, Radius, true)
+	SetVisualGearValues(tempCircleVar.visual, x, y, nil, nil, 0, nil, nil, Radius, LineThickness, Color, nil)
+	return tempCircleVar
 end
 
 function DeleteCircle(gear)
@@ -90,6 +79,7 @@ function GetDistFromGearToGear(gear1,gear2)
 end
 
 function TestForGearInsideCircle(testgear,testcircle)
+	if testgear == nil then return false end
 	local testresult = GetDistFromGearToGear(testgear,testcircle.gear)
 	local testradius = GetCircleRadius(testcircle)
 	if testresult <= testradius^2 then return true else return false end
