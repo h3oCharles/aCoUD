@@ -1,15 +1,18 @@
-tempCircleVar = {}
 DebugGear = {}
 DebugVisual = {}
 
 function onGearInsideCircle(testgear,testcircle) end
 function onGearOutsideCircle(testgear,testcircle) end
 
-function AddCircle(x,y,Radius,LineThickness,Color)
-	tempCircleVar.gear = AddGear(x, y, gtGenericFaller, gstNoGravity, 0, 0, 2147483647)
-	tempCircleVar.visual = AddVisualGear(x, y, vgtCircle, Radius, true)
-	SetVisualGearValues(tempCircleVar.visual, x, y, nil, nil, 0, nil, nil, Radius, LineThickness, Color, nil)
-	return tempCircleVar
+tempCircleVar = {}
+
+function AddCircle(x, y, Radius, LineThickness, Color)
+	local circleData = {}
+	circleData.gear = AddGear(x, y, gtGenericFaller, gstNoGravity+gstInvisible, 0, 0, 2147483647)
+	circleData.visual = AddVisualGear(x, y, vgtCircle, Radius, true)
+	SetVisualGearValues(circleData.visual, x, y, nil, nil, 0, nil, nil, Radius, LineThickness, Color, nil)
+	table.insert(tempCircleVar, circleData)
+	return circleData
 end
 
 function DeleteCircle(gear)
@@ -70,12 +73,14 @@ end
 function GetDistFromGearToGear(gear1,gear2)
 	g1X, g1Y = GetGearPosition(gear1)
 	g2X, g2Y = GetGearPosition(gear2)
-	if gear1 ~= nil and gear2 ~= nil then
-		q = g1X - g2X
-		w = g1Y - g2Y
-		result = ((q*q) + (w*w))
-		return result
-	else return nil end
+	if g1X == nil then g1X = -2147483648 end
+	if g1Y == nil then g1Y = -2147483648 end
+	if g2X == nil then g2X = -2147483648 end
+	if g2Y == nil then g2Y = -2147483648 end
+	q = g1X - g2X
+	w = g1Y - g2Y
+	result = ((q*q) + (w*w))
+	return result
 end
 
 function TestForGearInsideCircle(testgear,testcircle)
@@ -85,26 +90,30 @@ function TestForGearInsideCircle(testgear,testcircle)
 	if testresult <= testradius^2 then return true else return false end
 end
 
-function TestForStateOfGearInsideCircle(testgear,testcircle)
-	currentState = nil
+local gearStateTable = {}
 
-	if TestForGearInsideCircle(testgear,testcircle) == true then
+function TestForStateOfGearInsideCircle(testgear, testcircle)
+	if testgear == nil then return nil end
+	if gearStateTable[testgear] == nil then
+		gearStateTable[testgear] = {}
+	end
+	
+	local previousState = gearStateTable[testgear][testcircle]
+	local currentState = nil
+
+	if TestForGearInsideCircle(testgear, testcircle) == true then
 		currentState = "inTargetArea"
 	else
 		currentState = "outOfTargetArea"
 	end
-	
+
 	if currentState ~= previousState then
 		if currentState == "inTargetArea" then
-			--stuff is happening inside the circle
-			onGearInsideCircle(testgear,testcircle)
+			onGearInsideCircle(testgear, testcircle)
 		elseif currentState == "outOfTargetArea" then
-			--stuff is happening outside the circle
-			onGearOutsideCircle(testgear,testcircle)
+			onGearOutsideCircle(testgear, testcircle)
 		end
 	end
-	
-	previousState = currentState
-end
 
---add a function checking for state changes, which is what i have in island hoppers for toggling airmines
+	gearStateTable[testgear][testcircle] = currentState
+end
