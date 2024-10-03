@@ -216,6 +216,7 @@ function onGameStart()
 	trackTeams()
 end
 
+
 function onAmmoStoreInit()
 	PopulateCrates()
 end
@@ -224,10 +225,21 @@ function onNewTurn()
 	CheckMissionStart()
 end
 
+function onEndTurn()
+end
+
 function onGearAdd(gear)
 	if isATrackedGear(gear) then trackGear(gear) end
 end
 
 function onGearDelete(gear)
-	if GetGearType(gear) == gtHedgehog then trackDeletion(gear)	end
+	if isATrackedGear(gear) then trackDeletion(gear) end
+end
+
+function onHogRestore(gear)
+	if isATrackedGear(gear) then trackGear(gear) end
+end
+
+function onHogHide(gear)
+	if isATrackedGear(gear) then trackDeletion(gear) end
 end

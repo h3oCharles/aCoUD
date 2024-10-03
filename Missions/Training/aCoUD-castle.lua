@@ -136,7 +136,8 @@ function SetupGameFlags()
 end
 
 function SetupScheme()
-	TurnTime = 45 * 1000
+	--TurnTime = 45 * 1000
+	TurnTime = 9999 * 1000
 	Explosives = 0
 	MinesNum = 0
 	CaseFreq = 0
@@ -184,7 +185,6 @@ function SetupTeams()
 	HogTurnLeft(angel, true)
 	SetGearAIHints(angel, aihDoesntMatter)
 	
-	--[[
 	AddTeam(loc("Hedgehogland"), -1, "Statue", "Castle", "Default_qau", "cm_bloodyblade")
 	helper[1] = AddHog(loc("Sir Quilliam"), 3, 100, "knight")
 	helper[2] = AddHog(loc("Lady Prickles"), 3, 100, "knight")
@@ -198,7 +198,6 @@ function SetupTeams()
 	HogTurnLeft(helper[2], true)
 	HogTurnLeft(helper[3], true)
 	HogTurnLeft(helper[4], true)
-	]]--
 	
 	AddTeam(loc("Royalty"), -2, "dragonball", "Castle", "British_qau", "cm_crown")
 	king = AddHog(loc("Actual King"), 1, 250, "crown")
@@ -243,28 +242,31 @@ function SetupWeapons()
 		AddAmmo(player[i],amGirder,3)
 		AddAmmo(player[i],amParachute,100)
 		AddAmmo(player[i],amSwitch,3)
+		
+		AddAmmo(player[i],amSnowball,100)
+		AddAmmo(player[i],amRope,100)
 	end
 	
-	AddAmmo(angel,amSniperRifle,100)
-	AddAmmo(angel,amWatermelon,100)
+	for i = 1,#helper do
+		AddAmmo(helper[i],amBazooka,100)
+		AddAmmo(helper[i],amMortar,100)
+		AddAmmo(helper[i],amGrenade,100)
+		AddAmmo(helper[i],amShotgun,100)
+		AddAmmo(helper[i],amDEagle,100)
+		AddAmmo(helper[i],amFirePunch,100)
+		AddAmmo(helper[i],amWhip,100)
+	end
+	
 	AddAmmo(angel,amBazooka,100)
-	AddAmmo(angel,amBee,5)
-	AddAmmo(angel,amMortar,5)
-	AddAmmo(angel,amFlamethrower,1)
+	AddAmmo(angel,amMortar,100)
 	AddAmmo(angel,amGrenade,100)
-	AddAmmo(angel,amMolotov,2)
+	AddAmmo(angel,amWatermelon,100)
 	AddAmmo(angel,amShotgun,100)
-	AddAmmo(angel,amDEagle,2)
-	AddAmmo(angel,amMinigun,1)
+	AddAmmo(angel,amDEagle,100)
+	AddAmmo(angel,amSniperRifle,100)
+	AddAmmo(angel,amMinigun,100)
 	AddAmmo(angel,amFirePunch,100)
 	AddAmmo(angel,amWhip,100)
-	AddAmmo(angel,amBaseballBat,1)
-	AddAmmo(angel,amDynamite,1)
-	AddAmmo(angel,amSeduction,1)
-	AddAmmo(angel,amBlowTorch,3)
-	AddAmmo(angel,amGirder,3)
-	AddAmmo(angel,amParachute,100)
-	AddAmmo(angel,amSwitch,3)
 	
 	for i = 1,#enemy do
 		AddAmmo(enemy[i],amBazooka,100)
@@ -304,17 +306,24 @@ end
 
 function AnimationSetup()
 	animIntro = {
-	{func = AnimWait, args = {player1,2.5*1000}},
-	{func = AnimFollowGear, args = {princess}},
-	{func = AnimWait, args = {gear,3*1000}},
-	{func = AnimSay, args = {player1, "...", SAY_SAY, 3*1000}},
-	{func = AnimSay, args = {princess, "...!", SAY_SAY, 3*1000}},
-	{func = AnimSay, args = {player1, "...!", SAY_SAY, 3*1000}}
+	{func = AnimWait, args = {a,2.5*1000}},
+	{func = AnimSay, args = {princess, "HELP!", SAY_SHOUT, 3*1000}},
+	{func = AnimSay, args = {player[1], "...!", SAY_THINK, 3*1000}}
 	}
 	local function ConcludeIntro() StartMission() end
     AddFunction({func = ConcludeIntro, args = {}})
 	--{func = SetZoom, swh = false, args = {3}},
 	AddAnim(animIntro)
+	
+	--[[
+	animReinforcements = {
+	{func = AnimWait, args = {a,2.5*1000}},
+	{func = AnimSay, args = {player[1], "...!", SAY_THINK, 3*1000}}
+	}
+	local function ConcludeReinforcements() BringReinforcements() end
+    AddFunction({func = ConcludeReinforcements, args = {}})
+	AddAnim(animReinforcements)
+	]]--
 end
 
 -- 
@@ -325,7 +334,7 @@ function ShowBriefing(a)
 	if a == "intro" then
 		ShowMission(missionName, "Objectives",
 		"Eliminate the enemy.".."|"..
-		"Escort the Princess to the right side of the map.".."|"..
+		"Escort the Princess to your starting position.".."|"..
 		" ".."|"..
 		"Hint: Focus on getting to the Princess, as Shine will focus on the enemy.".."|"..
 		"",-amSeduction, 0)
@@ -352,6 +361,11 @@ end
 function onGameTick20()
 	if Heaven == true then runOnHogs(HeadInTheClouds) end
 	SetCirclePosition(PrincessCircle, GetX(princess), GetY(princess))
+	
+	if CurrentHedgehog ~= nil and gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and GetHogLevel(CurrentHedgehog) == 0 then
+	--if GetX(CurrentHedgehog) == middleOfCastle and GetHogLevel(CurrentHedgehog) == 0 then
+		cutsceneAllies = true
+	end
 end
 
 function HeadInTheClouds(gear)
@@ -367,15 +381,15 @@ function onGameStart()
 	SetupWeapons()
 	trackTeams()
 	
+	for i = 1,#helper do HideHog(helper[i]) end
+	
 	CloudCircle = AddCircle(1535,310,300,3,0xFFFFFF00)
 	PrincessCircle = AddCircle(340,930,100,3,0xFF808080)
 	RockCircle = AddCircle(1740,900,100,3,0x80808080)
 	
 	middleOfCastle = 817
 	testline = AddVisualGear(0,0,vgtLineTrail,0,true)
-	--SetVisualGearValues(vgUid, X, Y, dX, dY, Angle, Frame, FrameTicks, State, Timer, Tint, Scale)
-	SetVisualGearValues(testline, middleOfCastle, 0, middleOfCastle, LAND_HEIGHT, nil, nil, nil, nil, 2147483647, 255, nil)
-
+	SetVisualGearValues(testline, middleOfCastle, -LAND_HEIGHT, middleOfCastle, LAND_HEIGHT*2, nil, nil, nil, nil, 2147483647, 255, nil)
 end
 
 function onAmmoStoreInit()
@@ -402,32 +416,56 @@ function onGearAdd(gear)
 	end
 end
 
+function onEndTurn()
+	if cutsceneAllies == true then
+		printDebug("reinforcements incoming!")
+	elseif cutsceneHumanGone == true then
+		printDebug("the human team is gone")
+		--write a cutscene plz
+		ConcludeGame(false,true,false)
+	elseif cutscenePrincessGone == true then
+		printDebug("the princess is gone")
+		--write a cutscene plz
+		ConcludeGame(false,false,false)
+	end
+	--cutscene for all enemies gone but princess not encountered
+	--cutscene for all enemies gone with princess encountered
+	--cutscene for princess encountered while still in battle
+	--cutscene for enemies gone after princess was encountered
+	--cutscene for the angel disappearing?
+end
+
 function onGearDelete(gear)
+	if isATrackedGear(gear) then trackDeletion(gear) end
 	
-	if GetGearType(gear) == gtHedgehog then
-		trackDeletion(gear)
-		
+	if GetGearType(gear) == gtHedgehog then	
 		if gear == king then
 			for i = 1,#enemy do SetHealth(enemy[i],0) end
 			HeavenGone()
 		end
 		
-		if gear == princess then ConcludeGame(false,false,false) end
-		if gear == angel then HeavenGone() end
-		
-		if GetHogLevel(gear) ~= 0 and gear ~= angel then
-			--printDebug(GetHogName(gear))
-			--test = test + 1
-			--printDebug(test)
+		if gear == princess then
+			cutscenePrincessGone = true
+			--ConcludeGame(false,false,false)
 		end
+		if gear == angel then HeavenGone() end
 		
 		if GetHogLevel(gear) == 0 and IsHogLocal(gear) == true and gear ~= princess then
 			humanHogs = humanHogs - 1
 			if humanHogs == 0 then
-				ConcludeGame(false,true,false)
+				cutsceneHumanGone = true
+				--ConcludeGame(false,true,false)
 			end
 		end
 	end
+end
+
+function onHogRestore(gear)
+	if isATrackedGear(gear) then trackGear(gear) end
+end
+
+function onHogHide(gear)
+	if isATrackedGear(gear) then trackDeletion(gear) end
 end
 
 function HeavenGone()
@@ -439,14 +477,16 @@ end
 
 function onGearInsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
-		--printDebug(tostring(GetHogName(gear)).." is inside the clouds")
 		SetGearCollisionMask(gear, 0x0000)
 	end
 end
 
 function onGearOutsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
-		--printDebug(tostring(GetHogName(gear)).." is outside the clouds")
 		SetGearCollisionMask(gear, 0xFFFF)
 	end
+end
+
+function BringReinforcements()
+	for i = 1,#helper do RestoreHog(helper[i]) end
 end
