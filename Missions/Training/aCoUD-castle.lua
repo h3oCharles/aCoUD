@@ -37,6 +37,7 @@ enemy = {}
 
 humanHogs = 0
 Heaven = true
+ReinforcementsProximity = true
 
 --
 -- library requirements
@@ -304,7 +305,7 @@ end
 -- cutscene stuff
 -- 
 
-function AnimationSetup()
+function animIntro()
 	animIntro = {
 	{func = AnimWait, args = {a,2.5*1000}},
 	{func = AnimSay, args = {princess, "HELP!", SAY_SHOUT, 3*1000}},
@@ -314,16 +315,26 @@ function AnimationSetup()
     AddFunction({func = ConcludeIntro, args = {}})
 	--{func = SetZoom, swh = false, args = {3}},
 	AddAnim(animIntro)
-	
-	--[[
+end
+
+function animReinforcements()
+	triggered = CurrentHedgehog
+	--printDebug("triggered: "..GetHogName(triggered) )
 	animReinforcements = {
 	{func = AnimWait, args = {a,2.5*1000}},
-	{func = AnimSay, args = {player[1], "...!", SAY_THINK, 3*1000}}
+	{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}}
 	}
+	--[[
+	{func = AnimOutOfNowhere, args = {helper[1]}},
+	{func = AnimOutOfNowhere, args = {helper[2]}},
+	{func = AnimOutOfNowhere, args = {helper[3]}},
+	{func = AnimOutOfNowhere, args = {helper[4]}}
+	{func = AnimSay, args = {helper[3], "FOR HEDGEHOGLAND!!!", SAY_SHOUT, 3*1000}},
+	{func = AnimSay, args = {triggered, "...!", SAY_SAY, 3*1000}}
+	]]--
 	local function ConcludeReinforcements() BringReinforcements() end
     AddFunction({func = ConcludeReinforcements, args = {}})
 	AddAnim(animReinforcements)
-	]]--
 end
 
 -- 
@@ -351,7 +362,7 @@ function onGameInit()
 	SetupScheme()
 	SetupTeams()
 	AnimInit()
-	AnimationSetup()
+	animIntro()
 end
 
 function onGameTick()
@@ -362,7 +373,7 @@ function onGameTick20()
 	if Heaven == true then runOnHogs(HeadInTheClouds) end
 	SetCirclePosition(PrincessCircle, GetX(princess), GetY(princess))
 	
-	if CurrentHedgehog ~= nil and gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and GetHogLevel(CurrentHedgehog) == 0 then
+	if ReinforcementsProximity == true and CurrentHedgehog ~= nil and gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and GetHogLevel(CurrentHedgehog) == 0 then
 	--if GetX(CurrentHedgehog) == middleOfCastle and GetHogLevel(CurrentHedgehog) == 0 then
 		cutsceneAllies = true
 	end
@@ -385,7 +396,7 @@ function onGameStart()
 	
 	CloudCircle = AddCircle(1535,310,300,3,0xFFFFFF00)
 	PrincessCircle = AddCircle(340,930,100,3,0xFF808080)
-	RockCircle = AddCircle(1740,900,100,3,0x80808080)
+	RockCircle = AddCircle(1740,917,100,3,0x80808080)
 	
 	middleOfCastle = 817
 	testline = AddVisualGear(0,0,vgtLineTrail,0,true)
@@ -398,6 +409,7 @@ end
 
 function onNewTurn()
 	CheckMissionStart()
+	if AnimInProgress() == true then AnimFollowGear(triggered) end
 	
 	turnCounter = turnCounter + 1
 	if turnCounter ~= 0 and turnCounter % 2 == 1 then
@@ -418,13 +430,15 @@ end
 
 function onEndTurn()
 	if cutsceneAllies == true then
-		printDebug("reinforcements incoming!")
+		--printDebug("reinforcements incoming!")
+		animReinforcements()
+		ReinforcementsProximity = false
 	elseif cutsceneHumanGone == true then
-		printDebug("the human team is gone")
+		--printDebug("the human team is gone")
 		--write a cutscene plz
 		ConcludeGame(false,true,false)
 	elseif cutscenePrincessGone == true then
-		printDebug("the princess is gone")
+		--printDebug("the princess is gone")
 		--write a cutscene plz
 		ConcludeGame(false,false,false)
 	end
