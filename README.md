@@ -1,7 +1,6 @@
-# aCoUD
-A Collection of Unimaginative Dreams
+# A Collection of Unimaginative Dreams
 
-this will be a code dump for a campaign for [Hedgewars](https://www.hedgewars.org/) to showcase the potential of this game, and my own capabilties
+this will be a code dump for a campaign for [Hedgewars](https://www.hedgewars.org/) to showcase the potential of this game, and my own capabilities
 
 [roadmap](https://docs.google.com/spreadsheets/d/15tYcsRryqzY5E5rcbczyLtZuXW3SZyQzfwme-BqET2M/edit?usp=sharing)
 
