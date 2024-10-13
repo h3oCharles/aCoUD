@@ -1,10 +1,16 @@
 -- 
 -- todo
---[[
+--
+-- the two passive functions need to change - GiveTurn - i need to have it accept any team as a var cuz i want hedgehogland get a turn after their cutscene
+-- the GiveTurn function needs to look at the team status too - whoever triggered the cutscene, get their team, how many hogs remain, go from there
+--
 --if one of human team hogs get near princess, cutscene, bunch of crates, human gets turn
 --if princess gets to the rock, win
 --reinforcements come in once a human hog passes the middle of the castle
-]]--
+--basically cutscenes remain ergh
+--
+--playtesting
+--
 
 -- 
 -- load scripts
@@ -335,6 +341,13 @@ function animReinforcements()
 	local function ConcludeReinforcements() BringReinforcements() end
     AddFunction({func = ConcludeReinforcements, args = {}})
 	AddAnim(animReinforcements)
+	--[[
+	triggered gets confused
+	an earthquake? rumbling?
+	Hedgehogland comes in
+	FOR HEDGEHOGLAND!!!
+	end anim, they get a turn <-- func needs changes
+	]]--
 end
 
 -- 
@@ -377,10 +390,6 @@ function onGameTick20()
 	--if GetX(CurrentHedgehog) == middleOfCastle and GetHogLevel(CurrentHedgehog) == 0 then
 		cutsceneAllies = true
 	end
-end
-
-function HeadInTheClouds(gear)
-	TestForStateOfGearInsideCircle(gear,CloudCircle)
 end
 
 function onPrecise()
@@ -480,6 +489,14 @@ end
 
 function onHogHide(gear)
 	if isATrackedGear(gear) then trackDeletion(gear) end
+end
+
+-- 
+-- mission specific stuff
+-- 
+
+function HeadInTheClouds(gear)
+	TestForStateOfGearInsideCircle(gear,CloudCircle)
 end
 
 function HeavenGone()
