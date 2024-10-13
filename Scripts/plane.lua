@@ -45,13 +45,15 @@ function onGearAdd(gear)
     if GetGearType(gear) == gtRCPlane then
 		trackGear(gear)
 		isPlane = true
-		SetBoom(gear,75)
+		--SetBoom(gear,75)
 		DisplayCaption = true
     end
 	
+	--[[
     if GetGearType(gear) == gtAirBomb then
-		SetBoom(gear,50)
+		--SetBoom(gear,50)
 	end
+	]]--
 end
 
 function onGearDelete(gear)
