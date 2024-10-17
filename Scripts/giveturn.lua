@@ -2,17 +2,18 @@
 --CheckGivenTurn() needs to be added in onNewTurn()
 --trackTeams() needs to be added in onGameStart()
 --all hedgehogs need to be tracked from the start
---todo: optional argument for specifying a hog
---^ GiveTurn(HumanName,triggered)
 
-team = ""
-teamtemp = ""
+--team = ""
+--teamtemp = ""
+--hog = ""
+--hogtemp = ""
 
-function GiveTurn(team)
+function GiveTurn(team,hog)
 	teamtemp = team
+	hogtemp = hog
 	runOnHogsInOtherTeams(SetHogsPassive, team)
 	GivenTurn = true
-	EndTurn()
+	EndTurn(true)
 end
 
 function SetHogsPassive(gear)
@@ -37,7 +38,11 @@ function CheckGivenTurn()
 		testIndex = 0
 		testArray = {}
 		runOnHogsInTeam(ListHogs, teamtemp)
-		SwitchHog(testArray[1])
+		if hogtemp == nil then
+			SwitchHog(testArray[1])
+		else
+			SwitchHog(hogtemp)
+		end
 		runOnHogs(SetHogsNotPassive)
 		GivenTurn = false
 	end
