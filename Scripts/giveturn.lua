@@ -1,4 +1,9 @@
+--needs Tracker library
 --CheckGivenTurn() needs to be added in onNewTurn()
+--trackTeams() needs to be added in onGameStart()
+--all hedgehogs need to be tracked from the start
+--todo: optional argument for specifying a hog
+--^ GiveTurn(HumanName,triggered)
 
 team = ""
 teamtemp = ""
