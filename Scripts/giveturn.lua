@@ -8,6 +8,8 @@
 --hog = ""
 --hogtemp = ""
 
+function onGivenTurn() end
+
 function GiveTurn(team,hog)
 	teamtemp = team
 	hogtemp = hog
@@ -44,6 +46,7 @@ function CheckGivenTurn()
 			SwitchHog(hogtemp)
 		end
 		runOnHogs(SetHogsNotPassive)
+		onGivenTurn()
 		GivenTurn = false
 	end
 end
