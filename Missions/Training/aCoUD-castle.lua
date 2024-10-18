@@ -1,12 +1,11 @@
 -- 
 -- todo
 --
--- the two passive functions need to change - GiveTurn - i need to have it accept any team as a var cuz i want hedgehogland get a turn after their cutscene
--- the GiveTurn function needs to look at the team status too - whoever triggered the cutscene, get their team, how many hogs remain, go from there
+--reinforcements come in once a human hog passes the middle of the castle
+--giving turn can be skipped??? <-- nah probs fixable
 --
 --if one of human team hogs get near princess, cutscene, bunch of crates, human gets turn
 --if princess gets to the rock, win
---reinforcements come in once a human hog passes the middle of the castle
 --basically cutscenes remain ergh
 --
 --playtesting
@@ -23,6 +22,7 @@ HedgewarsScriptLoad("/Scripts/Animate.lua")
 
 HedgewarsScriptLoad("/Scripts/generic.lua")
 HedgewarsScriptLoad("/Scripts/circles.lua")
+HedgewarsScriptLoad("/Scripts/giveturn.lua")
 HedgewarsScriptLoad("/Scripts/finish.lua")
 
 -- 
@@ -91,32 +91,9 @@ end
 -- static mission stuff
 --
 
-function SetPassive(isPassive)
-	tempPassive = isPassive
-	runOnHogs(SetPassiveOnHogs)
-end
-
-function SetPassiveOnHogs(gear)
-	HogTeamName = GetHogTeamName(gear)
-	if HogTeamName ~= HumanName then
-		SetTeamPassive(HogTeamName, tempPassive)
-	end
-end
-
 function StartMission()
-	SetPassive(true)
-	AnimSwitchHog(player[#player])
+	GiveTurn(PlayerTeam)
 	ShowBriefing("intro")
-	EndTurn(true)
-	MissionStarted = true
-end
-
-function CheckMissionStart()
-	if MissionStarted == true then
-		SetPassive(false)
-		SetTeamPassive(loc("Princess"), true)
-		MissionStarted = false
-	end
 end
 
 function PopulateCrates()
@@ -165,7 +142,7 @@ function SetupScheme()
 end
 
 function SetupTeams()
-	HumanName,HumanIndex = AddMissionTeam(-1)
+	PlayerTeam,PlayerIndex = AddMissionTeam(-1)
 	player[1] = AddMissionHog(100)
 	player[2] = AddMissionHog(100)
 	player[3] = AddMissionHog(100)
@@ -179,38 +156,38 @@ function SetupTeams()
 	HogTurnLeft(player[3], true)
 	HogTurnLeft(player[4], true)
 	
-	AddTeam(loc("Princess"), -1, "heart", "Flowerhog", "Singer_qau", "cm_heart")
+	PrincessTeam,PrincessIndex = AddTeam(loc("Princess"), -1, "heart", "Flowerhog", "Singer_qau", "cm_heart")
 	princess = AddHog(loc("Princess Mango"), 0, 100, "sm_peach")
 	SetGearPosition(princess, 341, 931)
 	HogTurnLeft(princess, false)
-	SetTeamPassive(loc("Princess"), true)
+	SetTeamPassive(PrincessTeam, true)
 	SetGearAIHints(princess, aihDoesntMatter)
 	
-	AddTeam(loc("Guardian Angels"), -1, "ring", "Earth", "Default_qau", "cm_bubbles")
+	AngelTeam,AngelIndex = AddTeam(loc("Guardian Angels"), -1, "ring", "Earth", "Default_qau", "cm_bubbles")
 	angel = AddHog(loc("Shine"), 1, 666, "angel")
 	SetGearPosition(angel, 1592, 204)
 	HogTurnLeft(angel, true)
 	SetGearAIHints(angel, aihDoesntMatter)
 	
-	AddTeam(loc("Hedgehogland"), -1, "Statue", "Castle", "Default_qau", "cm_bloodyblade")
+	HelperTeam,HelperIndex = AddTeam(loc("Hedgehogland"), -1, "Statue", "Castle", "Default_qau", "cm_bloodyblade")
 	helper[1] = AddHog(loc("Sir Quilliam"), 3, 100, "knight")
 	helper[2] = AddHog(loc("Lady Prickles"), 3, 100, "knight")
 	helper[3] = AddHog(loc("Sir Bramble"), 3, 100, "knight")
 	helper[4] = AddHog(loc("Sir Thornley"), 3, 100, "knight")
-	SetGearPosition(helper[1], 1807, 933)
-	SetGearPosition(helper[2], 1662, 932)
-	SetGearPosition(helper[3], 1740, 917)
-	SetGearPosition(helper[4], 1873, 961)
+	SetGearPosition(helper[1], 1807, 933-32)
+	SetGearPosition(helper[2], 1662, 932-32)
+	SetGearPosition(helper[3], 1740, 917-32)
+	SetGearPosition(helper[4], 1873, 961-32)
 	HogTurnLeft(helper[1], true)
 	HogTurnLeft(helper[2], true)
 	HogTurnLeft(helper[3], true)
 	HogTurnLeft(helper[4], true)
 	
-	AddTeam(loc("Royalty"), -2, "dragonball", "Castle", "British_qau", "cm_crown")
+	KingTeam,KingIndex = AddTeam(loc("Royalty"), -2, "dragonball", "Castle", "British_qau", "cm_crown")
 	king = AddHog(loc("Actual King"), 1, 250, "crown")
 	SetGearPosition(king, 827, 302)
 	
-	AddTeam(loc("Hogera"), -2, "Grave", "Castle", "British_qau", "cm_swordshield")
+	EnemyTeam,EnemyIndex = AddTeam(loc("Hogera"), -2, "Grave", "Castle", "British_qau", "cm_swordshield")
 	enemy[1] = AddHog(loc("Sir Thornblade"), 3, 100, "royalguard")
 	enemy[2] = AddHog(loc("Lady Bramble"), 3, 100, "royalguard")
 	enemy[3] = AddHog(loc("Sir Quillhelm"), 3, 100, "royalguard")
@@ -250,8 +227,9 @@ function SetupWeapons()
 		AddAmmo(player[i],amParachute,100)
 		AddAmmo(player[i],amSwitch,3)
 		
-		AddAmmo(player[i],amSnowball,100)
-		AddAmmo(player[i],amRope,100)
+		--AddAmmo(player[i],amSnowball,100)
+		--AddAmmo(player[i],amRope,100)
+		AddAmmo(player[i],amTeleport,100)
 	end
 	
 	for i = 1,#helper do
@@ -324,30 +302,49 @@ function animIntro()
 end
 
 function animReinforcements()
-	triggered = CurrentHedgehog
-	--printDebug("triggered: "..GetHogName(triggered) )
-	animReinforcements = {
-	{func = AnimWait, args = {a,2.5*1000}},
-	{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}}
-	}
-	--[[
-	{func = AnimOutOfNowhere, args = {helper[1]}},
-	{func = AnimOutOfNowhere, args = {helper[2]}},
-	{func = AnimOutOfNowhere, args = {helper[3]}},
-	{func = AnimOutOfNowhere, args = {helper[4]}}
-	{func = AnimSay, args = {helper[3], "FOR HEDGEHOGLAND!!!", SAY_SHOUT, 3*1000}},
-	{func = AnimSay, args = {triggered, "...!", SAY_SAY, 3*1000}}
-	]]--
-	local function ConcludeReinforcements() BringReinforcements() end
-    AddFunction({func = ConcludeReinforcements, args = {}})
-	AddAnim(animReinforcements)
-	--[[
-	triggered gets confused
-	an earthquake? rumbling?
-	Hedgehogland comes in
-	FOR HEDGEHOGLAND!!!
-	end anim, they get a turn <-- func needs changes
-	]]--
+		triggered = CurrentHedgehog
+		--printDebug("triggered: "..GetHogName(triggered) )
+		animReinforcements = {
+		{func = AnimWait, args = {a,2.5*1000}},
+		{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}}
+		}
+		--[[
+		{func = AnimOutOfNowhere, args = {helper[1]}},
+		{func = AnimOutOfNowhere, args = {helper[2]}},
+		{func = AnimOutOfNowhere, args = {helper[3]}},
+		{func = AnimOutOfNowhere, args = {helper[4]}}
+		{func = AnimSay, args = {helper[3], "FOR HEDGEHOGLAND!!!", SAY_SHOUT, 3*1000}},
+		{func = AnimSay, args = {triggered, "...!", SAY_SAY, 3*1000}}
+		]]--
+		local function ConcludeReinforcements() AfterReinforcements() end
+		AddFunction({func = ConcludeReinforcements, args = {}})
+		AddAnim(animReinforcements)
+		--[[
+		triggered gets confused
+		an earthquake? rumbling?
+		Hedgehogland comes in
+		FOR HEDGEHOGLAND!!!
+		end anim, they get a turn <-- func needs changes
+		]]--
+		cutsceneAllies = false
+end
+
+function BringReinforcements()
+	for i = 1,#helper do
+		RestoreHog(helper[i])
+		x,y = GetGearPosition(helper[i])
+		AddVisualGear(x, y, vgtExplosion, 0, true)
+	end
+	PlaySound(sndWarp)
+end
+
+function SkipReinforcements()
+
+end
+
+function AfterReinforcements()
+	BringReinforcements()
+	GiveTurn(HelperTeam)
 end
 
 -- 
@@ -386,7 +383,10 @@ function onGameTick20()
 	if Heaven == true then runOnHogs(HeadInTheClouds) end
 	SetCirclePosition(PrincessCircle, GetX(princess), GetY(princess))
 	
-	if ReinforcementsProximity == true and CurrentHedgehog ~= nil and gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and GetHogLevel(CurrentHedgehog) == 0 then
+	if	ReinforcementsProximity == true and
+		CurrentHedgehog ~= nil and
+		gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and
+		GetHogLevel(CurrentHedgehog) == 0 then
 	--if GetX(CurrentHedgehog) == middleOfCastle and GetHogLevel(CurrentHedgehog) == 0 then
 		cutsceneAllies = true
 	end
@@ -417,7 +417,7 @@ function onAmmoStoreInit()
 end
 
 function onNewTurn()
-	CheckMissionStart()
+	CheckGivenTurn()
 	if AnimInProgress() == true then AnimFollowGear(triggered) end
 	
 	turnCounter = turnCounter + 1
@@ -431,7 +431,7 @@ function onGearAdd(gear)
 
 	if GetGearType(gear) == gtHedgehog then
 		--printDebug(tostring(GetGearCollisionMask(gear)))
-		if IsHogLocal(gear) == true and GetHogTeamName(gear) ~= loc("Princess") then
+		if IsHogLocal(gear) == true and GetHogTeamName(gear) ~= PrincessTeam then
 			humanHogs = humanHogs + 1
 		end
 	end
@@ -442,14 +442,14 @@ function onEndTurn()
 		--printDebug("reinforcements incoming!")
 		animReinforcements()
 		ReinforcementsProximity = false
-	elseif cutsceneHumanGone == true then
+	--[[elseif cutsceneHumanGone == true then
 		--printDebug("the human team is gone")
 		--write a cutscene plz
 		ConcludeGame(false,true,false)
 	elseif cutscenePrincessGone == true then
 		--printDebug("the princess is gone")
 		--write a cutscene plz
-		ConcludeGame(false,false,false)
+		ConcludeGame(false,false,false)]]--
 	end
 	--cutscene for all enemies gone but princess not encountered
 	--cutscene for all enemies gone with princess encountered
@@ -468,16 +468,16 @@ function onGearDelete(gear)
 		end
 		
 		if gear == princess then
-			cutscenePrincessGone = true
-			--ConcludeGame(false,false,false)
+			--cutscenePrincessGone = true
+			ConcludeGame(false,false,false)
 		end
 		if gear == angel then HeavenGone() end
 		
 		if GetHogLevel(gear) == 0 and IsHogLocal(gear) == true and gear ~= princess then
 			humanHogs = humanHogs - 1
 			if humanHogs == 0 then
-				cutsceneHumanGone = true
-				--ConcludeGame(false,true,false)
+				--cutsceneHumanGone = true
+				ConcludeGame(false,true,false)
 			end
 		end
 	end
@@ -495,12 +495,16 @@ end
 -- mission specific stuff
 -- 
 
+function onGivenTurn()
+	SetTeamPassive(PrincessTeam,true)
+end
+
 function HeadInTheClouds(gear)
 	TestForStateOfGearInsideCircle(gear,CloudCircle)
 end
 
 function HeavenGone()
-	DismissTeam(loc("Guardian Angels"))
+	DismissTeam(AngelTeam)
 	Explode(1535,310,300,EXPLNoGfx)
 	DeleteCircle(CloudCircle)
 	Heaven = false
@@ -516,8 +520,4 @@ function onGearOutsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
 		SetGearCollisionMask(gear, 0xFFFF)
 	end
-end
-
-function BringReinforcements()
-	for i = 1,#helper do RestoreHog(helper[i]) end
 end
