@@ -105,8 +105,8 @@ function SetupGameFlags()
 end
 
 function SetupScheme()
-	--TurnTime = 45 * 1000
-	TurnTime = 9999 * 1000
+	TurnTime = 45 * 1000
+	--TurnTime = 9999 * 1000
 	Explosives = 0
 	MinesNum = 0
 	CaseFreq = 0
@@ -212,9 +212,10 @@ function SetupWeapons()
 		AddAmmo(player[i],amParachute,100)
 		AddAmmo(player[i],amSwitch,3)
 		
-		--AddAmmo(player[i],amSnowball,100)
-		AddAmmo(player[i],amRope,100)
-		AddAmmo(player[i],amTeleport,100)
+		AddAmmo(player[i],amSnowball,100)
+		--AddAmmo(player[i],amRope,100)
+		--AddAmmo(player[i],amTeleport,100)
+		AddAmmo(player[i],amGirder,100)
 	end
 	
 	for i = 1,#helper do
@@ -368,6 +369,9 @@ end
 
 function onGameTick20()
 	if Heaven == true then runOnHogs(HeadInTheClouds) end
+	TestForStateOfGearInsideCircle(CurrentHedgehog, PrincessCircle)
+	TestForStateOfGearInsideCircle(princess, RockCircle)
+
 	SetCirclePosition(PrincessCircle, GetX(princess), GetY(princess))
 	
 	if	ReinforcementsProximity == true and
@@ -391,8 +395,8 @@ function onGameStart()
 	for i = 1,#helper do HideHog(helper[i]) end
 	
 	CloudCircle = AddCircle(1535,310,300,3,0xFFFFFF00)
-	PrincessCircle = AddCircle(340,930,100,3,0xFF808000)
-	RockCircle = AddCircle(1740,917,100,3,0x80808000)
+	PrincessCircle = AddCircle(340,930,100,3,0xFF8080FF)
+	RockCircle = AddCircle(1740,917,100,3,0x808080FF)
 	
 	middleOfCastle = 817
 	testline = AddVisualGear(0,0,vgtLineTrail,0,true)
@@ -488,15 +492,26 @@ function HeadInTheClouds(gear)
 end
 
 function HeavenGone()
-	SetGearCollisionMask(angel, 0x0000)
-	Explode(1535,310,300,EXPLNoGfx+EXPLDoNotTouchHH+EXPLNoDamage)
-	DeleteCircle(CloudCircle)
-	Heaven = false
+	if angel ~= nil then
+		SetGearCollisionMask(angel, 0x0000)
+		Explode(1535,310,300,EXPLNoGfx+EXPLDoNotTouchHH+EXPLNoDamage)
+		DeleteCircle(CloudCircle)
+		Heaven = false
+	end
 end
 
 function onGearInsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
 		SetGearCollisionMask(gear, 0x0000)
+	end
+	if	circle == PrincessCircle and
+		CurrentHedgehog ~= nil and
+		GetHogLevel(CurrentHedgehog) == 0 then
+		printDebug("princess cutscene trigger")
+	end
+	
+	if gear == princess and circle == RockCircle then
+		printDebug("win trigger")
 	end
 end
 
