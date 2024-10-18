@@ -1,17 +1,21 @@
 -- 
 -- todo
---
---reinforcements come in once a human hog passes the middle of the castle
---giving turn can be skipped??? <-- nah probs fixable
---
---if one of human team hogs get near princess, cutscene, bunch of crates, human gets turn
---if princess gets to the rock, win
---basically cutscenes remain ergh
---
---playtesting
---
+--[[
 
--- 
+reinforcements come in once a human hog passes the middle of the castle
+giving turn can be skipped??? <-- nah probs fixable
+
+a fancier cutscene for heaven gone? make the angel fall to water instead of getting dismissed?
+if reinforcements are in play, make them passive
+if reinforcements come in after enemy is gone, different cutscene...?
+
+if one of human team hogs get near princess, cutscene, bunch of crates, human gets turn
+if princess gets to the rock, win
+basically cutscenes remain ergh
+
+playtesting
+
+]]-- 
 -- load scripts
 -- 
 
@@ -330,6 +334,7 @@ function animReinforcements()
 end
 
 function BringReinforcements()
+	printDebug("bringing in reinforcements")
 	for i = 1,#helper do
 		RestoreHog(helper[i])
 		x,y = GetGearPosition(helper[i])
@@ -339,10 +344,11 @@ function BringReinforcements()
 end
 
 function SkipReinforcements()
-
+	printDebug("reinforcements were skipped")
 end
 
 function AfterReinforcements()
+	printDebug("concluding reinforcements")
 	BringReinforcements()
 	GiveTurn(HelperTeam)
 end
@@ -505,7 +511,7 @@ end
 
 function HeavenGone()
 	DismissTeam(AngelTeam)
-	Explode(1535,310,300,EXPLNoGfx)
+	Explode(1535,310,300,EXPLNoGfx+EXPLNoDamage)
 	DeleteCircle(CloudCircle)
 	Heaven = false
 end
