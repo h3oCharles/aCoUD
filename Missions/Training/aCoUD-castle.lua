@@ -1,20 +1,19 @@
 -- 
 -- todo
 --[[
-
-reinforcements come in once a human hog passes the middle of the castle
-giving turn can be skipped??? <-- nah probs fixable
-
-a fancier cutscene for heaven gone? make the angel fall to water instead of getting dismissed?
-if reinforcements are in play, make them passive
+if reinforcements are in play when enemy is gone, make them passive
 if reinforcements come in after enemy is gone, different cutscene...?
 
 if one of human team hogs get near princess, cutscene, bunch of crates, human gets turn
 if princess gets to the rock, win
 basically cutscenes remain ergh
 
-playtesting
+cutscene for all enemies gone but princess not encountered
+cutscene for all enemies gone with princess encountered
+cutscene for princess encountered while still in battle
+cutscene for enemies gone after princess was encountered
 
+playtesting
 ]]-- 
 -- load scripts
 -- 
@@ -89,24 +88,6 @@ function AnimationSkipping()
 	if AnimInProgress() then
 		SetAnimSkip(true)
 	end
-end
-
---
--- static mission stuff
---
-
-function StartMission()
-	GiveTurn(PlayerTeam)
-	ShowBriefing("intro")
-end
-
-function PopulateCrates()
-	for i = 0, AmmoTypeMax do
-		if i ~= amNothing then
-			SetAmmo(i, 0, 0, 0, 1)
-		end
-	end
-	SetAmmo(amSkip, 9, 0, 0, 0)
 end
 
 -- 
@@ -232,7 +213,7 @@ function SetupWeapons()
 		AddAmmo(player[i],amSwitch,3)
 		
 		--AddAmmo(player[i],amSnowball,100)
-		--AddAmmo(player[i],amRope,100)
+		AddAmmo(player[i],amRope,100)
 		AddAmmo(player[i],amTeleport,100)
 	end
 	
@@ -289,6 +270,15 @@ function SetupSprites()
 	--PlaceSprite(1903, 176, sprAmRubber, 0, U_LAND_TINT_NORMAL, nil, nil, nil, lfBouncy)
 end
 
+function PopulateCrates()
+	for i = 0, AmmoTypeMax do
+		if i ~= amNothing then
+			SetAmmo(i, 0, 0, 0, 1)
+		end
+	end
+	SetAmmo(amSkip, 9, 0, 0, 0)
+end
+
 -- 
 -- cutscene stuff
 -- 
@@ -299,73 +289,64 @@ function animIntro()
 	{func = AnimSay, args = {princess, "HELP!", SAY_SHOUT, 3*1000}},
 	{func = AnimSay, args = {player[1], "...!", SAY_THINK, 3*1000}}
 	}
-	local function ConcludeIntro() StartMission() end
-    AddFunction({func = ConcludeIntro, args = {}})
-	--{func = SetZoom, swh = false, args = {3}},
-	AddAnim(animIntro)
-end
-
-function animReinforcements()
-		triggered = CurrentHedgehog
-		--printDebug("triggered: "..GetHogName(triggered) )
-		animReinforcements = {
-		{func = AnimWait, args = {a,2.5*1000}},
-		{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}}
-		}
-		--[[
-		{func = AnimOutOfNowhere, args = {helper[1]}},
-		{func = AnimOutOfNowhere, args = {helper[2]}},
-		{func = AnimOutOfNowhere, args = {helper[3]}},
-		{func = AnimOutOfNowhere, args = {helper[4]}}
-		{func = AnimSay, args = {helper[3], "FOR HEDGEHOGLAND!!!", SAY_SHOUT, 3*1000}},
-		{func = AnimSay, args = {triggered, "...!", SAY_SAY, 3*1000}}
-		]]--
-		local function ConcludeReinforcements() AfterReinforcements() end
-		AddFunction({func = ConcludeReinforcements, args = {}})
-		AddAnim(animReinforcements)
-		--[[
-		triggered gets confused
-		an earthquake? rumbling?
-		Hedgehogland comes in
-		FOR HEDGEHOGLAND!!!
-		end anim, they get a turn <-- func needs changes
-		]]--
-		cutsceneAllies = false
-end
-
-function BringReinforcements()
-	printDebug("bringing in reinforcements")
-	for i = 1,#helper do
-		RestoreHog(helper[i])
-		x,y = GetGearPosition(helper[i])
-		AddVisualGear(x, y, vgtExplosion, 0, true)
-	end
-	PlaySound(sndWarp)
-end
-
-function SkipReinforcements()
-	printDebug("reinforcements were skipped")
-end
-
-function AfterReinforcements()
-	printDebug("concluding reinforcements")
-	BringReinforcements()
-	GiveTurn(HelperTeam)
-end
-
--- 
--- ShowBriefing
--- 
-
-function ShowBriefing(a)
-	if a == "intro" then
+	local function SkipIntro() end
+	AddSkipFunction(animIntro, SkipIntro, {})
+	local function AfterIntro()
 		ShowMission(missionName, "Objectives",
 		"Eliminate the enemy.".."|"..
 		"Escort the Princess to your starting position.".."|"..
 		" ".."|"..
 		"Hint: Focus on getting to the Princess, as Shine will focus on the enemy.".."|"..
 		"",-amSeduction, 0)
+		GiveTurn(PlayerTeam)
 	end
+    AddFunction({func = AfterIntro, args = {}})
+	AddAnim(animIntro)
+end
+
+function animReinforcements()
+		animReinforcements = {
+		{func = AnimWait, args = {a,2.5*1000}},
+		{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}},
+		
+		{func = RestoreHog, args = {helper[2]}},
+		{func = AnimOutOfNowhere, args = {helper[2]}},
+		{func = AnimTurn, args = {helper[2],"Left"}},
+		{func = AnimWait, args = {a,0.5*1000}},
+		
+		{func = RestoreHog, args = {helper[3]}},
+		{func = AnimOutOfNowhere, args = {helper[3]}},
+		{func = AnimTurn, args = {helper[3],"Left"}},
+		{func = AnimWait, args = {a,0.5*1000}},
+		
+		{func = RestoreHog, args = {helper[1]}},
+		{func = AnimOutOfNowhere, args = {helper[1]}},
+		{func = AnimTurn, args = {helper[1],"Left"}},
+		{func = AnimWait, args = {a,0.5*1000}},
+		
+		{func = RestoreHog, args = {helper[4]}},
+		{func = AnimOutOfNowhere, args = {helper[4]}},
+		{func = AnimTurn, args = {helper[4],"Left"}},
+		{func = AnimWait, args = {a,0.5*1000}},
+		
+		{func = AnimSay, args = {helper[3], "FOR HEDGEHOGLAND!!!", SAY_SHOUT, 1.5*1000}},
+		{func = AnimSay, args = {triggered, "...!", SAY_SAY, 3*1000}}
+		}
+		local function SkipReinforcements()
+			for i = 1,#helper do
+				RestoreHog(helper[i])
+				HogTurnLeft(helper[i],true)
+			end
+		end
+		AddSkipFunction(animReinforcements, SkipReinforcements, {})
+		
+		local function AfterReinforcements()
+
+			GiveTurn(HelperTeam)
+		end
+		AddFunction({func = AfterReinforcements, args = {}})
+		AddAnim(animReinforcements)
+		cutsceneAllies = false
 end
 
 -- 
@@ -393,7 +374,7 @@ function onGameTick20()
 		CurrentHedgehog ~= nil and
 		gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and
 		GetHogLevel(CurrentHedgehog) == 0 then
-	--if GetX(CurrentHedgehog) == middleOfCastle and GetHogLevel(CurrentHedgehog) == 0 then
+		triggered = CurrentHedgehog
 		cutsceneAllies = true
 	end
 end
@@ -410,12 +391,12 @@ function onGameStart()
 	for i = 1,#helper do HideHog(helper[i]) end
 	
 	CloudCircle = AddCircle(1535,310,300,3,0xFFFFFF00)
-	PrincessCircle = AddCircle(340,930,100,3,0xFF808080)
-	RockCircle = AddCircle(1740,917,100,3,0x80808080)
+	PrincessCircle = AddCircle(340,930,100,3,0xFF808000)
+	RockCircle = AddCircle(1740,917,100,3,0x80808000)
 	
 	middleOfCastle = 817
 	testline = AddVisualGear(0,0,vgtLineTrail,0,true)
-	SetVisualGearValues(testline, middleOfCastle, -LAND_HEIGHT, middleOfCastle, LAND_HEIGHT*2, nil, nil, nil, nil, 2147483647, 255, nil)
+	SetVisualGearValues(testline, middleOfCastle, -LAND_HEIGHT, middleOfCastle, LAND_HEIGHT*2, nil, nil, nil, nil, 2147483647, 0, nil)
 end
 
 function onAmmoStoreInit()
@@ -424,44 +405,41 @@ end
 
 function onNewTurn()
 	CheckGivenTurn()
-	if AnimInProgress() == true then AnimFollowGear(triggered) end
+	
+	if cutsceneAllies == true then
+		animReinforcements()
+		ReinforcementsProximity = false
+	end
+	
+	if AnimInProgress() == true then
+		AnimFollowGear(triggered)
+		SetSoundMask(sndYesSir, true)
+		SetSoundMask(sndHmm, true)
+	else
+		SetSoundMask(sndYesSir, false)
+		SetSoundMask(sndHmm, false)
+	end
 	
 	turnCounter = turnCounter + 1
 	if turnCounter ~= 0 and turnCounter % 2 == 1 then
 		HealHog(princess, 100-GetHealth(princess))
 	end
+	
+end
+
+function onEndTurn()
+	SetSoundMask(sndYesSir, false)
+	SetSoundMask(sndHmm, false)
 end
 
 function onGearAdd(gear)
 	if isATrackedGear(gear) then trackGear(gear) end
 
 	if GetGearType(gear) == gtHedgehog then
-		--printDebug(tostring(GetGearCollisionMask(gear)))
 		if IsHogLocal(gear) == true and GetHogTeamName(gear) ~= PrincessTeam then
 			humanHogs = humanHogs + 1
 		end
 	end
-end
-
-function onEndTurn()
-	if cutsceneAllies == true then
-		--printDebug("reinforcements incoming!")
-		animReinforcements()
-		ReinforcementsProximity = false
-	--[[elseif cutsceneHumanGone == true then
-		--printDebug("the human team is gone")
-		--write a cutscene plz
-		ConcludeGame(false,true,false)
-	elseif cutscenePrincessGone == true then
-		--printDebug("the princess is gone")
-		--write a cutscene plz
-		ConcludeGame(false,false,false)]]--
-	end
-	--cutscene for all enemies gone but princess not encountered
-	--cutscene for all enemies gone with princess encountered
-	--cutscene for princess encountered while still in battle
-	--cutscene for enemies gone after princess was encountered
-	--cutscene for the angel disappearing?
 end
 
 function onGearDelete(gear)
@@ -510,8 +488,8 @@ function HeadInTheClouds(gear)
 end
 
 function HeavenGone()
-	DismissTeam(AngelTeam)
-	Explode(1535,310,300,EXPLNoGfx+EXPLNoDamage)
+	SetGearCollisionMask(angel, 0x0000)
+	Explode(1535,310,300,EXPLNoGfx+EXPLDoNotTouchHH+EXPLNoDamage)
 	DeleteCircle(CloudCircle)
 	Heaven = false
 end
