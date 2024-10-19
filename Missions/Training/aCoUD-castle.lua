@@ -38,7 +38,6 @@ missionID = -1
 --local hhs = {}
 
 turnCounter = -1
-test = 0
 
 player = {}
 helper = {}
@@ -258,17 +257,21 @@ function SetupWeapons()
 end
 
 function SetupSprites()
+	--two girders next to rocks
 	PlaceSprite(1570, 1005, sprAmGirder, 0, U_LAND_TINT_INDESTRUCTIBLE, nil, nil, nil, lfIndestructible)
 	PlaceSprite(1950, 950, sprAmGirder, 3, U_LAND_TINT_INDESTRUCTIBLE, nil, nil, nil, lfIndestructible)
+	
+	--princess cage
 	PlaceSprite(305, 893, sprAmGirder, 7, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
 	PlaceSprite(351, 862, sprAmGirder, 5, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
+	
+	--enemy fortifications
 	PlaceSprite(1238, 909, sprAmGirder, 3, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
 	PlaceSprite(1253, 938, sprAmGirder, 2, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
 	PlaceSprite(1164, 782, sprAmGirder, 3, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
 	PlaceSprite(1176, 813, sprAmGirder, 2, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
 	PlaceSprite(1054, 734, sprAmGirder, 3, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
 	PlaceSprite(1066, 770, sprAmGirder, 2, U_LAND_TINT_NORMAL, nil, nil, nil, lfNormal)
-	--PlaceSprite(1903, 176, sprAmRubber, 0, U_LAND_TINT_NORMAL, nil, nil, nil, lfBouncy)
 end
 
 function PopulateCrates()
@@ -349,6 +352,22 @@ function animReinforcements()
 		AddAnim(animReinforcements)
 		cutsceneAllies = false
 end
+
+-- animPrincess
+
+--[[
+tempG = SpawnAmmoCrate(425, 888, amBazooka)
+tempG = SpawnAmmoCrate(466, 883, amBazooka)
+tempG = SpawnAmmoCrate(506, 868, amBazooka)
+tempG = SpawnAmmoCrate(544, 832, amBazooka)
+tempG = SpawnAmmoCrate(571, 804, amBazooka)
+tempG = SpawnAmmoCrate(596, 748, amBazooka)
+tempG = SpawnAmmoCrate(620, 719, amBazooka)
+tempG = SpawnAmmoCrate(219, 940, amBazooka)
+tempG = SpawnAmmoCrate(177, 945, amBazooka)
+tempG = SpawnAmmoCrate(133, 954, amBazooka)
+tempG = SpawnAmmoCrate(92, 970, amBazooka)
+]]--
 
 -- 
 -- HW functions
@@ -440,7 +459,7 @@ function onGearAdd(gear)
 	if isATrackedGear(gear) then trackGear(gear) end
 
 	if GetGearType(gear) == gtHedgehog then
-		if IsHogLocal(gear) == true and GetHogTeamName(gear) ~= PrincessTeam then
+		if IsHogLocal(gear) == true and gear ~= princess then
 			humanHogs = humanHogs + 1
 		end
 	end
@@ -494,7 +513,7 @@ end
 function HeavenGone()
 	if angel ~= nil then
 		SetGearCollisionMask(angel, 0x0000)
-		Explode(1535,310,300,EXPLNoGfx+EXPLDoNotTouchHH+EXPLNoDamage)
+		Explode(1535,310,300,EXPLNoGfx+EXPLDoNotTouchAny+EXPLNoDamage)
 		DeleteCircle(CloudCircle)
 		Heaven = false
 	end
@@ -504,9 +523,7 @@ function onGearInsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
 		SetGearCollisionMask(gear, 0x0000)
 	end
-	if	circle == PrincessCircle and
-		CurrentHedgehog ~= nil and
-		GetHogLevel(CurrentHedgehog) == 0 then
+	if	GetHogLevel(CurrentHedgehog) == 0 and circle == PrincessCircle then
 		printDebug("princess cutscene trigger")
 	end
 	
