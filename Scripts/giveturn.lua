@@ -42,8 +42,10 @@ function CheckGivenTurn()
 		runOnHogsInTeam(ListHogs, teamtemp)
 		if hogtemp == nil then
 			SwitchHog(testArray[1])
+			FollowGear(testArray[1])
 		else
 			SwitchHog(hogtemp)
+			FollowGear(hogtemp)
 		end
 		runOnHogs(SetHogsNotPassive)
 		onGivenTurn()
