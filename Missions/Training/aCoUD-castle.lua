@@ -1,17 +1,9 @@
 -- 
 -- todo
 --[[
-if reinforcements are in play when enemy is gone, make them passive
-if reinforcements come in after enemy is gone, different cutscene...?
-
 if one of human team hogs get near princess, cutscene, bunch of crates, human gets turn
 if princess gets to the rock, win
-basically cutscenes remain ergh
-
-cutscene for all enemies gone but princess not encountered
-cutscene for all enemies gone with princess encountered
-cutscene for princess encountered while still in battle
-cutscene for enemies gone after princess was encountered
+if ally hog is near princess, heal
 
 playtesting
 ]]-- 
@@ -52,7 +44,7 @@ ReinforcementsProximity = true
 --
 
 function isATrackedGear(gear)
-	if (GetGearType(gear) == gtHedgehog) then return true else return false end
+	if GetGearType(gear) == gtHedgehog then return true	else return false end
 end
 
 --[[
@@ -152,7 +144,7 @@ function SetupTeams()
 	SetGearPosition(angel, 1592, 204)
 	HogTurnLeft(angel, true)
 	SetGearAIHints(angel, aihDoesntMatter)
-	
+
 	HelperTeam,HelperIndex = AddTeam(loc("Hedgehogland"), -1, "Statue", "Castle", "Default_qau", "cm_bloodyblade")
 	helper[1] = AddHog(loc("Sir Quilliam"), 3, 100, "knight")
 	helper[2] = AddHog(loc("Lady Prickles"), 3, 100, "knight")
@@ -212,7 +204,7 @@ function SetupWeapons()
 		AddAmmo(player[i],amSwitch,3)
 		
 		AddAmmo(player[i],amSnowball,100)
-		--AddAmmo(player[i],amRope,100)
+		AddAmmo(player[i],amRope,100)
 		--AddAmmo(player[i],amTeleport,100)
 		AddAmmo(player[i],amGirder,100)
 	end
@@ -289,7 +281,9 @@ end
 
 function animIntro()
 	animIntro = {
+	{func = AnimFollowGear, args = {player[1]}},
 	{func = AnimWait, args = {a,2.5*1000}},
+	{func = AnimSay, args = {player[1], "...", SAY_THINK, 3*1000}},
 	{func = AnimSay, args = {princess, "HELP!", SAY_SHOUT, 3*1000}},
 	{func = AnimSay, args = {player[1], "...!", SAY_THINK, 3*1000}}
 	}
@@ -334,7 +328,7 @@ function animReinforcements()
 		{func = AnimWait, args = {a,0.5*1000}},
 		
 		{func = AnimSay, args = {helper[3], "FOR HEDGEHOGLAND!!!", SAY_SHOUT, 1.5*1000}},
-		{func = AnimSay, args = {triggered, "...!", SAY_SAY, 3*1000}}
+		{func = AnimSay, args = {triggered, "...?!", SAY_THINK, 3*1000}},
 		}
 		local function SkipReinforcements()
 			for i = 1,#helper do
@@ -345,8 +339,13 @@ function animReinforcements()
 		AddSkipFunction(animReinforcements, SkipReinforcements, {})
 		
 		local function AfterReinforcements()
-
-			GiveTurn(HelperTeam)
+			if EnemyGone == true then
+				--EndTurn(true)
+				GiveTurn(PlayerTeam,triggered)
+				SetTeamPassive(HelperTeam,true)
+			else
+				GiveTurn(HelperTeam)
+			end
 		end
 		AddFunction({func = AfterReinforcements, args = {}})
 		AddAnim(animReinforcements)
@@ -446,6 +445,9 @@ function onNewTurn()
 	turnCounter = turnCounter + 1
 	if turnCounter ~= 0 and turnCounter % 2 == 1 then
 		HealHog(princess, 100-GetHealth(princess))
+	elseif turnCounter ~= 0 and turnCounter % 2 == 0 then
+		runOnHogsInTeam(PrincessHeal, PlayerTeam)
+		runOnHogsInTeam(PrincessHeal, HelperTeam)
 	end
 	
 end
@@ -459,7 +461,7 @@ function onGearAdd(gear)
 	if isATrackedGear(gear) then trackGear(gear) end
 
 	if GetGearType(gear) == gtHedgehog then
-		if IsHogLocal(gear) == true and gear ~= princess then
+		if GetHogTeamName(gear) == PlayerTeam then
 			humanHogs = humanHogs + 1
 		end
 	end
@@ -470,8 +472,9 @@ function onGearDelete(gear)
 	
 	if GetGearType(gear) == gtHedgehog then	
 		if gear == king then
-			for i = 1,#enemy do SetHealth(enemy[i],0) end
 			HeavenGone()
+			for i = 1,#enemy do SetHealth(enemy[i],0) end
+			EnemyGone = true
 		end
 		
 		if gear == princess then
@@ -483,7 +486,6 @@ function onGearDelete(gear)
 		if GetHogLevel(gear) == 0 and IsHogLocal(gear) == true and gear ~= princess then
 			humanHogs = humanHogs - 1
 			if humanHogs == 0 then
-				--cutsceneHumanGone = true
 				ConcludeGame(false,true,false)
 			end
 		end
@@ -491,11 +493,15 @@ function onGearDelete(gear)
 end
 
 function onHogRestore(gear)
-	if isATrackedGear(gear) then trackGear(gear) end
+	if isATrackedGear(gear) then
+		trackGear(gear)
+	end
 end
 
 function onHogHide(gear)
-	if isATrackedGear(gear) then trackDeletion(gear) end
+	if isATrackedGear(gear) then
+		trackDeletion(gear)
+	end
 end
 
 -- 
@@ -504,10 +510,17 @@ end
 
 function onGivenTurn()
 	SetTeamPassive(PrincessTeam,true)
+	if EnemyGone == true then SetTeamPassive(HelperTeam,true) end
 end
 
 function HeadInTheClouds(gear)
 	TestForStateOfGearInsideCircle(gear,CloudCircle)
+end
+
+function PrincessHeal(gear)
+	if TestForGearInsideCircle(gear, PrincessCircle) == true then
+		HealHog(gear, 100-GetHealth(gear))
+	end
 end
 
 function HeavenGone()
@@ -523,7 +536,7 @@ function onGearInsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
 		SetGearCollisionMask(gear, 0x0000)
 	end
-	if	GetHogLevel(CurrentHedgehog) == 0 and circle == PrincessCircle then
+	if	GetHogLevel(CurrentHedgehog) == 0 and circle == PrincessCircle and CurrentHedgehog ~= princess then
 		printDebug("princess cutscene trigger")
 	end
 	
