@@ -1,12 +1,4 @@
 -- 
--- todo
---[[
-if one of human team hogs get near princess, cutscene, bunch of crates, human gets turn
-if princess gets to the rock, win
-if ally hog is near princess, heal
-
-playtesting
-]]-- 
 -- load scripts
 -- 
 
@@ -38,6 +30,7 @@ enemy = {}
 humanHogs = 0
 Heaven = true
 ReinforcementsProximity = true
+PrincessFirst = true
 
 --
 -- library requirements
@@ -203,10 +196,10 @@ function SetupWeapons()
 		AddAmmo(player[i],amParachute,100)
 		AddAmmo(player[i],amSwitch,3)
 		
-		AddAmmo(player[i],amSnowball,100)
-		AddAmmo(player[i],amRope,100)
+		--AddAmmo(player[i],amSnowball,100)
+		--AddAmmo(player[i],amRope,100)
 		--AddAmmo(player[i],amTeleport,100)
-		AddAmmo(player[i],amGirder,100)
+		--AddAmmo(player[i],amGirder,100)
 	end
 	
 	for i = 1,#helper do
@@ -246,6 +239,10 @@ function SetupWeapons()
 	AddAmmo(king,amSniperRifle,100)
 	AddAmmo(king,amFirePunch,100)
 	AddAmmo(king,amWhip,100)
+	
+	AddAmmo(princess,amSeduction,100)
+	AddAmmo(princess,amResurrector,100)
+	
 end
 
 function SetupSprites()
@@ -304,6 +301,7 @@ end
 
 function animReinforcements()
 		animReinforcements = {
+		{func = AnimFollowGear, args = {triggered}},
 		{func = AnimWait, args = {a,2.5*1000}},
 		{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}},
 		
@@ -352,21 +350,65 @@ function animReinforcements()
 		cutsceneAllies = false
 end
 
--- animPrincess
+function animPrincess()
+	animPrincess = {
+		{func = AnimFollowGear, args = {triggered}},
+		{func = AnimWait, args = {a,2.5*1000}},
+		{func = AnimSay, args = {princess, "Oh my goodness, it's so good to see you"..", "..GetHogName(triggered).."!", SAY_THINK, 3*1000}},
+		{func = AnimSay, args = {triggered, "...!", SAY_SAY, 4.5*1000}},
+		{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}},
+		{func = AnimSay, args = {princess, "Oh, right...", SAY_SAY, 3*1000}},
+		{func = AnimSay, args = {princess, "Here, take these supplies!", SAY_SAY, 3*1000}}
+		}
+		local function SkipPrincess()
+		end
+		AddSkipFunction(animPrincess, SkipPrincess, {})
+		
+		local function AfterPrincess()
+			--amExtraTime, 1
+			--amGirder, 3
+			--amSnowball, 100
+			--amSwitch, 100
+			--SpawnSupplyCrate(92, 970,	amGirder, 3)
+			SpawnSupplyCrate(133, 954,	amSnowball, 100)
+			SpawnSupplyCrate(177, 945,	amGirder, 100)
+			SpawnSupplyCrate(219, 940,	amSwitch, 100)
+			
+			--SpawnSupplyCrate(425, 888,	amExtraTime, 1)
+			--SpawnSupplyCrate(466, 883,	amExtraTime, 1)
+			--SpawnSupplyCrate(506, 868,	amExtraTime, 1)
+			--SpawnSupplyCrate(544, 832,	amExtraTime, 1)
+			--SpawnSupplyCrate(571, 804,	amExtraTime, 1)
+			
+			GiveTurn(PlayerTeam,triggered)
+		end
+		AddFunction({func = AfterPrincess, args = {}})
+		AddAnim(animPrincess)
+		PrincessFirst = false
+		cutscenePrincess = false
+end
 
---[[
-tempG = SpawnAmmoCrate(425, 888, amBazooka)
-tempG = SpawnAmmoCrate(466, 883, amBazooka)
-tempG = SpawnAmmoCrate(506, 868, amBazooka)
-tempG = SpawnAmmoCrate(544, 832, amBazooka)
-tempG = SpawnAmmoCrate(571, 804, amBazooka)
-tempG = SpawnAmmoCrate(596, 748, amBazooka)
-tempG = SpawnAmmoCrate(620, 719, amBazooka)
-tempG = SpawnAmmoCrate(219, 940, amBazooka)
-tempG = SpawnAmmoCrate(177, 945, amBazooka)
-tempG = SpawnAmmoCrate(133, 954, amBazooka)
-tempG = SpawnAmmoCrate(92, 970, amBazooka)
-]]--
+function animWin()
+	animWin = {
+		{func = AnimFollowGear, args = {triggered}},
+		{func = AnimWait, args = {a,2.5*1000}},
+		{func = AnimSay, args = {princess, "At last, I'm safe!", SAY_SHOUT, 3*1000}},
+		{func = AnimSay, args = {princess, "Thank you"..", "..GetHogName(triggered).."!", SAY_SAY, 3*1000}},
+		{func = AnimSay, args = {triggered, "...", SAY_SAY, 3*1000}},
+		{func = AnimSay, args = {princess, "You are My Hero!", SAY_SHOUT, 3*1000}},
+		{func = AnimSay, args = {triggered, "...!", SAY_SAY, 3*1000}},
+		{func = AnimSay, args = {princess, "Okay, okay, fine...", SAY_SAY, 3*1000}},
+		{func = AnimSay, args = {princess, "You are all My Heroes! tee-hee~~", SAY_SAY, 3*1000}}
+		}
+	local function SkipWin()
+	end
+	AddSkipFunction(animWin, SkipWin, {})
+	local function AfterWin()
+		ConcludeGame(true,false,false)
+	end
+	AddFunction({func = AfterWin, args = {}})
+	AddAnim(animWin)
+end
 
 -- 
 -- HW functions
@@ -396,6 +438,7 @@ function onGameTick20()
 		CurrentHedgehog ~= nil and
 		gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and
 		GetHogLevel(CurrentHedgehog) == 0 then
+		--printDebug("helpers triggered")
 		triggered = CurrentHedgehog
 		cutsceneAllies = true
 	end
@@ -413,8 +456,8 @@ function onGameStart()
 	for i = 1,#helper do HideHog(helper[i]) end
 	
 	CloudCircle = AddCircle(1535,310,300,3,0xFFFFFF00)
-	PrincessCircle = AddCircle(340,930,100,3,0xFF8080FF)
-	RockCircle = AddCircle(1740,917,100,3,0x808080FF)
+	PrincessCircle = AddCircle(340,930,100,3,0xFF808000)
+	RockCircle = AddCircle(1740,917,100,3,0x80808000)
 	
 	middleOfCastle = 817
 	testline = AddVisualGear(0,0,vgtLineTrail,0,true)
@@ -431,6 +474,16 @@ function onNewTurn()
 	if cutsceneAllies == true then
 		animReinforcements()
 		ReinforcementsProximity = false
+	elseif cutscenePrincess == true then
+		animPrincess()
+		PrincessFirst = false
+	elseif cutsceneWin == true then
+		animWin()
+	end
+	
+	if GetHogTeamName(CurrentHedgehog) == HelperTeam and EnemyGone == true then
+		SkipTurn()
+		SetTeamPassive(HelperTeam,true)
 	end
 	
 	if AnimInProgress() == true then
@@ -481,7 +534,9 @@ function onGearDelete(gear)
 			--cutscenePrincessGone = true
 			ConcludeGame(false,false,false)
 		end
-		if gear == angel then HeavenGone() end
+		if gear == angel and Heaven == true then
+			HeavenGone()
+		end
 		
 		if GetHogLevel(gear) == 0 and IsHogLocal(gear) == true and gear ~= princess then
 			humanHogs = humanHogs - 1
@@ -490,6 +545,10 @@ function onGearDelete(gear)
 			end
 		end
 	end
+	
+	--[[if GetGearType(gear) == gtCase and GetGearMessage(gear) == 256 then
+		printDebug("a crate was collected at "..GetX(gear)..", "..GetY(gear) )
+	end]]--
 end
 
 function onHogRestore(gear)
@@ -536,12 +595,19 @@ function onGearInsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
 		SetGearCollisionMask(gear, 0x0000)
 	end
-	if	GetHogLevel(CurrentHedgehog) == 0 and circle == PrincessCircle and CurrentHedgehog ~= princess then
-		printDebug("princess cutscene trigger")
+	if	GetHogLevel(CurrentHedgehog) == 0 and
+		circle == PrincessCircle and
+		CurrentHedgehog ~= princess and
+		PrincessFirst == true then
+		--printDebug("princess cutscene trigger")
+		triggered = CurrentHedgehog
+		cutscenePrincess = true
 	end
 	
 	if gear == princess and circle == RockCircle then
-		printDebug("win trigger")
+		--printDebug("win trigger")
+		triggered = CurrentHedgehog
+		cutsceneWin = true
 	end
 end
 
