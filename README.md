@@ -10,8 +10,8 @@ this will be a code dump for a campaign for [Hedgewars](https://www.hedgewars.or
 
 # Installation
 
-to make it work in-game, download the code as a ZIP file and extract it to reveal an "aCoUD-main" folder. Open it, select all contents (which should be a "Missions" folder, a "Scripts" folder, a "Maps" folder, README, and LICENSE), package it as a ZIP file, and rename the extension to HWP and [put it in your data folder](https://www.hedgewars.org/node/6761)
+to make it work in-game, download the code as a ZIP file and extract it to reveal an "aCoUD-main" folder. Open it, select all contents, package it as a ZIP file, and rename the extension to HWP and [put it in your data folder](https://www.hedgewars.org/node/6761)
 
 # Contribute
 
-if anyone would like to contribute, please read [the knowledge base](https://www.hedgewars.org/kb/LuaAPI) first before contacting me
+if anyone would like to contribute, please read [the knowledge base](https://www.hedgewars.org/kb/LuaAPI) and the repo's wiki first before contacting me
