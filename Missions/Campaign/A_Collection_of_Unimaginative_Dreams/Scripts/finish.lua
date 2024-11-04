@@ -1,23 +1,35 @@
 --gfOneClanMode needs to be enabled if this is used
 
+--SaveCampaignVar("Progress", tostring(2314) )
+
 function ConcludeGame(result,silence,special)
 	if AnimInProgress() ~= true then
 		EndTurn()
+		SendGameResultOff()
 		if result == true then
-			SaveMissionVar("Won", "true")
 			SendStat(siGameResult, "Mission succeeded!")
 			AddCaption("Mission succeeded!", 0xFFFFFFFF, capgrpGameState)
 			
+			progress = GetCampaignVar("Progress")
+			if progress == "" then progress = 0 end
+			SaveCampaignVar("Progress", tostring(progress) )
+			progress = GetCampaignVar("Progress")
+			
+			SaveCampaignVar("Mission".. missionID .."Won", tostring(true) )
+			if tonumber(progress) < tonumber(missionID) == true then
+				SaveCampaignVar("Progress", tostring(missionID) )
+			end
 		end
 		if result == false then
 			SendStat(siGameResult, "Mission failed!")
 			AddCaption("Mission failed!", 0xFFFFFFFF, capgrpGameState)
 		end
-		if		result == true and silence == false and special == true then
-			PlaySound(sndFlawless,CurrentHedgehog)
-			SetState(CurrentHedgehog,GetState(CurrentHedgehog) + gstWinner)
-		elseif	result == true and silence == false and special == false then
-			PlaySound(sndVictory,CurrentHedgehog)
+		if result == true and silence == false then
+			if special == true then
+				PlaySound(sndFlawless,CurrentHedgehog)
+			elseif special == false then
+				PlaySound(sndVictory,CurrentHedgehog)
+			end
 			SetState(CurrentHedgehog,GetState(CurrentHedgehog) + gstWinner)
 		elseif	result == false and silence == false then
 			PlaySound(sndNooo,CurrentHedgehog)
@@ -25,7 +37,16 @@ function ConcludeGame(result,silence,special)
 		end
 		SetInputMask(0)
 		EndGame()
+		onStatCollection()
+		PopulateStats()
+		--stats would be here
 	end
+end
+
+function onStatCollection() end
+
+function PopulateStats()
+	
 end
 
 function terminate()
