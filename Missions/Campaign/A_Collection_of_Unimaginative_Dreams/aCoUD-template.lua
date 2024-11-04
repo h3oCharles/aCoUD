@@ -7,10 +7,10 @@ HedgewarsScriptLoad("/Scripts/Tracker.lua")
 HedgewarsScriptLoad("/Scripts/Utils.lua")
 HedgewarsScriptLoad("/Scripts/Animate.lua")
 
-HedgewarsScriptLoad("/Scripts/generic.lua")
-HedgewarsScriptLoad("/Scripts/circles.lua")
-HedgewarsScriptLoad("/Scripts/giveturn.lua")
-HedgewarsScriptLoad("/Scripts/finish.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/generic.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/circles.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/giveturn.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/finish.lua")
 
 -- 
 -- vars
