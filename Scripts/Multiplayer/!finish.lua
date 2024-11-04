@@ -20,27 +20,28 @@ function onGameTick20()
 	TestForStateOfGearInsideCircle(CurrentHedgehog,failCircle)
 
 		ShowMission("!finish","debug",
+		"flawlessCircle" .. ": " .. tostring(flawlessCircle) .. "|" ..
+		"victoryCircle" .. ": " .. tostring(victoryCircle) .. "|" ..
+		"failCircle" .. ": " .. tostring(failCircle) .. "|" ..
 		"triggerFlawless" .. ": " .. tostring(triggerFlawless) .. "|" ..
 		"triggerVictory" .. ": " .. tostring(triggerVictory) .. "|" ..
 		"triggerFail" .. ": " .. tostring(triggerFail) .. "|" ..
-		"currentState" .. ": " .. tostring(currentState) .. "|"
+		"previousState" .. ": " .. tostring(previousState) .. "|" ..
+		"currentState" .. ": " .. tostring(currentState)
 		,4,0)
 end
 
 function onGearInsideCircle(testgear,testcircle)
-	printDebug("gear" .. ": " .. tostring(testgear))
-	printDebug("circle" .. ": " .. tostring(testcircle))
-	printDebug("flawlessCircle" .. ": " .. tostring(flawlessCircle))
-	printDebug("victoryCircle" .. ": " .. tostring(victoryCircle))
-	printDebug("failCircle" .. ": " .. tostring(failCircle))
-	if		testcircle == flawlessCircle then
-		printDebug("flawless circle")
-		ConcludeGame(true,false,true)
-	elseif	testcircle == victoryCircle then
-		printDebug("victory circle")
-		ConcludeGame(true,false,false)
-	elseif	testcircle == failCircle then
-		printDebug("fail circle")
-		ConcludeGame(false,false,false)
+	if testgear == CurrentHedgehog then
+		if		testcircle == flawlessCircle then
+			printDebug("flawless circle")
+			ConcludeGame(true,false,true)
+		elseif	testcircle == victoryCircle then
+			printDebug("victory circle")
+			ConcludeGame(true,false,false)
+		elseif	testcircle == failCircle then
+			printDebug("fail circle")
+			ConcludeGame(false,false,false)
+		end
 	end
 end
