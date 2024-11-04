@@ -26,6 +26,6 @@ I am not even close to finishing this, so for now, check out the [roadmap](https
 
 to make it work in-game, download the code as a ZIP file and extract it to reveal an "aCoUD-main" folder. Open it, select all contents, package it as a ZIP file, rename the extension to HWP, and [put it in your data folder](https://www.hedgewars.org/node/6761)
 
-# Contribute
+# Contributing
 
 if anyone would like to contribute, please read [the knowledge base](https://www.hedgewars.org/kb/LuaAPI) and the [repo's wiki](https://github.com/h3oCharles/aCoUD/wiki) first before contacting me
