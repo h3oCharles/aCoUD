@@ -2,6 +2,10 @@
 
 this will be a code dump for a campaign for [Hedgewars](https://www.hedgewars.org/) to showcase the potential of this game, and my capabilities
 
+you're mainly interested in Missions/Campaign/A_Collection_of_Unimaginative_Dreams and Maps, as Missions/Training and Scripts/Multiplayer are tech demos of individual functions without any instructions
+
+for the campaign's internal scripts, check out the [repo's wiki](https://github.com/h3oCharles/aCoUD/wiki) 
+
 [roadmap](https://docs.google.com/spreadsheets/d/15tYcsRryqzY5E5rcbczyLtZuXW3SZyQzfwme-BqET2M/edit?usp=sharing)
 
 ![hw_2024-10-22_19-31-0516136](https://github.com/user-attachments/assets/233cc906-387b-49b7-ba7f-21807d33cbb8)
