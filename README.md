@@ -20,7 +20,7 @@ you're mainly interested in Missions/Campaign/A_Collection_of_Unimaginative_Drea
 
 for the campaign's internal scripts, check out the [repo's wiki](https://github.com/h3oCharles/aCoUD/wiki) 
 
-[roadmap](https://docs.google.com/spreadsheets/d/15tYcsRryqzY5E5rcbczyLtZuXW3SZyQzfwme-BqET2M/edit?usp=sharing)
+I am not even close to finishing this, so for now, check out the [roadmap](https://docs.google.com/spreadsheets/d/15tYcsRryqzY5E5rcbczyLtZuXW3SZyQzfwme-BqET2M/edit?usp=sharing) of what's about to come of this
 
 # Installation
 
