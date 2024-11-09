@@ -11,6 +11,8 @@ HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scr
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/circles.lua")
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/giveturn.lua")
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/finish.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/soundmasks.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/counthogs.lua")
 
 -- 
 -- vars
@@ -19,45 +21,17 @@ HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scr
 missionName = "Castle"
 missionID = 1
 
---local hhs = {}
-
 turnCounter = -1
 
 player = {}
 helper = {}
 enemy = {}
 
-humanHogs = 0
 Heaven = true
-ReinforcementsProximity = true
-PrincessFirst = true
 
 --
 -- library requirements
 --
-
-function isATrackedGear(gear)
-	if GetGearType(gear) == gtHedgehog then return true	else return false end
-end
-
---[[
-function isATrackedGear(gear)
-	if 	(GetGearType(gear) == gtHedgehog) or
-		(GetGearType(gear) == gtExplosives) or
-		(GetGearType(gear) == gtMine) or
-		(GetGearType(gear) == gtSMine) or
-		(GetGearType(gear) == gtAirMine) or
-		(GetGearType(gear) == gtTarget) or
-		(GetGearType(gear) == gtKnife) or
-		(GetGearType(gear) == gtPortal) or
-		(GetGearType(gear) == gtCase)
-	then
-		return(true)
-	else
-		return(false)
-	end
-end
-]]--
 
 function AnimatePrerequisite()
     AnimUnWait()
@@ -90,7 +64,6 @@ end
 
 function SetupScheme()
 	TurnTime = 45 * 1000
-	--TurnTime = 9999 * 1000
 	Explosives = 0
 	MinesNum = 0
 	CaseFreq = 0
@@ -173,6 +146,11 @@ function SetupTeams()
 	SetGearPosition(enemy[6], 1106, 787)
 	SetGearPosition(enemy[7], 1239, 879)
 	SetGearPosition(enemy[8], 870, 125)
+end
+
+function onGivenTurn()
+	SetTeamPassive(PrincessTeam,true)
+	if enemyHogs == 0 then SetTeamPassive(HelperTeam,true) end
 end
 
 function SetupWeapons()
@@ -273,7 +251,7 @@ function PopulateCrates()
 end
 
 -- 
--- cutscene stuff
+-- cutscenes
 -- 
 
 function animIntro()
@@ -288,12 +266,15 @@ function animIntro()
 	AddSkipFunction(animIntro, SkipIntro, {})
 	local function AfterIntro()
 		ShowMission(missionName, "Objectives",
-		"Eliminate the enemy.".."|"..
 		"Escort the Princess to your starting position.".."|"..
 		" ".."|"..
 		"Hint: Focus on getting to the Princess, as Shine will focus on the enemy.".."|"..
 		"",-amSeduction, 0)
+		--"Eliminate the enemy.".."|"..
 		GiveTurn(PlayerTeam)
+		AddEvent(checkReinforcements, {}, doReinforcements, {}, 0)
+		AddEvent(checkPrincess, {}, doPrincess, {}, 0)
+		AddEvent(checkWin, {}, doWin, {}, 0)
 	end
     AddFunction({func = AfterIntro, args = {}})
 	AddAnim(animIntro)
@@ -337,7 +318,7 @@ function animReinforcements()
 		AddSkipFunction(animReinforcements, SkipReinforcements, {})
 		
 		local function AfterReinforcements()
-			if EnemyGone == true then
+			if enemyHogs == 0 then
 				--EndTurn(true)
 				GiveTurn(PlayerTeam,triggered)
 				SetTeamPassive(HelperTeam,true)
@@ -354,9 +335,9 @@ function animPrincess()
 	animPrincess = {
 		{func = AnimFollowGear, args = {triggered}},
 		{func = AnimWait, args = {a,2.5*1000}},
-		{func = AnimSay, args = {princess, "Oh my goodness, it's so good to see you"..", "..GetHogName(triggered).."!", SAY_THINK, 3*1000}},
+		{func = AnimSay, args = {princess, "Oh my goodness, it's so good to see you"..", "..GetHogName(triggered).."!", SAY_SAY, 3*1000}},
 		{func = AnimSay, args = {triggered, "...!", SAY_SAY, 4.5*1000}},
-		{func = AnimSay, args = {triggered, "...?", SAY_THINK, 3*1000}},
+		{func = AnimSay, args = {triggered, "...?", SAY_SAY, 3*1000}},
 		{func = AnimSay, args = {princess, "Oh, right...", SAY_SAY, 3*1000}},
 		{func = AnimSay, args = {princess, "Here, take these supplies!", SAY_SAY, 3*1000}}
 		}
@@ -365,26 +346,19 @@ function animPrincess()
 		AddSkipFunction(animPrincess, SkipPrincess, {})
 		
 		local function AfterPrincess()
-			--amExtraTime, 1
-			--amGirder, 3
-			--amSnowball, 100
-			--amSwitch, 100
-			--SpawnSupplyCrate(92, 970,	amGirder, 3)
+			--SpawnSupplyCrate(92, 970,	amExtraTime, 1)
 			SpawnSupplyCrate(133, 954,	amSnowball, 100)
-			SpawnSupplyCrate(177, 945,	amGirder, 100)
+			SpawnSupplyCrate(177, 945,	amGirder, 10)
 			SpawnSupplyCrate(219, 940,	amSwitch, 100)
-			
 			--SpawnSupplyCrate(425, 888,	amExtraTime, 1)
 			--SpawnSupplyCrate(466, 883,	amExtraTime, 1)
 			--SpawnSupplyCrate(506, 868,	amExtraTime, 1)
 			--SpawnSupplyCrate(544, 832,	amExtraTime, 1)
 			--SpawnSupplyCrate(571, 804,	amExtraTime, 1)
-			
 			GiveTurn(PlayerTeam,triggered)
 		end
 		AddFunction({func = AfterPrincess, args = {}})
 		AddAnim(animPrincess)
-		PrincessFirst = false
 		cutscenePrincess = false
 end
 
@@ -410,6 +384,56 @@ function animWin()
 	AddAnim(animWin)
 end
 
+--
+-- events
+--
+
+function checkPrincess()
+	if	GetHogTeamName(CurrentHedgehog) == PlayerTeam and
+		TestForGearInsideCircle(CurrentHedgehog, PrincessCircle) == true then
+		return true
+	end
+end
+
+function doPrincess()
+	CutsceneTriggered()
+	triggered = CurrentHedgehog
+	cutscenePrincess = true
+end
+
+--
+
+function checkWin()
+	pdx,pdy = GetGearVelocity(princess)
+	if	TestForGearInsideCircle(princess, RockCircle) == true and
+		pdx == 0 and
+		pdy == 0 then
+		return true
+	end
+end
+
+function doWin()
+	--CutsceneTriggered()
+	triggered = CurrentHedgehog
+	--cutsceneWin = true
+	animWin()
+end
+
+--
+
+function checkReinforcements()
+	if	GetHogTeamName(CurrentHedgehog) == PlayerTeam and
+		gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true then
+		return true
+	end
+end
+
+function doReinforcements()
+	CutsceneTriggered()
+	triggered = CurrentHedgehog
+	cutsceneAllies = true
+end
+
 -- 
 -- HW functions
 -- 
@@ -425,33 +449,21 @@ end
 
 function onGameTick()
 	AnimatePrerequisite()
+	if AnimInProgress() then AnimationInProgress = true	else AnimationInProgress = false end
 end
 
 function onGameTick20()
 	if Heaven == true then runOnHogs(HeadInTheClouds) end
-	TestForStateOfGearInsideCircle(CurrentHedgehog, PrincessCircle)
-	TestForStateOfGearInsideCircle(princess, RockCircle)
-
 	SetCirclePosition(PrincessCircle, GetX(princess), GetY(princess))
-	
-	if	ReinforcementsProximity == true and
-		CurrentHedgehog ~= nil and
-		gearIsInBox(CurrentHedgehog, middleOfCastle-10, -1024, 20, 2048) == true and
-		GetHogLevel(CurrentHedgehog) == 0 then
-		--printDebug("helpers triggered")
-		triggered = CurrentHedgehog
-		cutsceneAllies = true
-	end
 end
 
-function onPrecise()
-	AnimationSkipping()
-end
+function onPrecise() AnimationSkipping() end
 
 function onGameStart()
 	SetupSprites()
 	SetupWeapons()
 	trackTeams()
+	CountHogs()
 	
 	for i = 1,#helper do HideHog(helper[i]) end
 	
@@ -460,39 +472,23 @@ function onGameStart()
 	RockCircle = AddCircle(1740,917,100,3,0x80808000)
 	
 	middleOfCastle = 817
-	testline = AddVisualGear(0,0,vgtLineTrail,0,true)
-	SetVisualGearValues(testline, middleOfCastle, -LAND_HEIGHT, middleOfCastle, LAND_HEIGHT*2, nil, nil, nil, nil, 2147483647, 0, nil)
+	--testline = AddVisualGear(0,0,vgtLineTrail,0,true)
+	--SetVisualGearValues(testline, middleOfCastle, -LAND_HEIGHT, middleOfCastle, LAND_HEIGHT*2, nil, nil, nil, nil, 2147483647, 0, nil)
 end
 
-function onAmmoStoreInit()
-	PopulateCrates()
-end
+function onAmmoStoreInit() PopulateCrates() end
 
 function onNewTurn()
 	CheckGivenTurn()
+	SoundMasks(0)
 	
-	if cutsceneAllies == true then
-		animReinforcements()
-		ReinforcementsProximity = false
-	elseif cutscenePrincess == true then
-		animPrincess()
-		PrincessFirst = false
-	elseif cutsceneWin == true then
-		animWin()
+	if		cutsceneAllies		== true then animReinforcements()
+	elseif	cutscenePrincess	== true then animPrincess()
 	end
 	
-	if GetHogTeamName(CurrentHedgehog) == HelperTeam and EnemyGone == true then
+	if GetHogTeamName(CurrentHedgehog) == HelperTeam and enemyHogs == 0 then
 		SkipTurn()
 		SetTeamPassive(HelperTeam,true)
-	end
-	
-	if AnimInProgress() == true then
-		AnimFollowGear(triggered)
-		SetSoundMask(sndYesSir, true)
-		SetSoundMask(sndHmm, true)
-	else
-		SetSoundMask(sndYesSir, false)
-		SetSoundMask(sndHmm, false)
 	end
 	
 	turnCounter = turnCounter + 1
@@ -502,79 +498,34 @@ function onNewTurn()
 		runOnHogsInTeam(PrincessHeal, PlayerTeam)
 		runOnHogsInTeam(PrincessHeal, HelperTeam)
 	end
-	
 end
 
-function onEndTurn()
-	SetSoundMask(sndYesSir, false)
-	SetSoundMask(sndHmm, false)
-end
+function onEndTurn() SoundMasks(1) end
 
-function onGearAdd(gear)
-	if isATrackedGear(gear) then trackGear(gear) end
-
-	if GetGearType(gear) == gtHedgehog then
-		if GetHogTeamName(gear) == PlayerTeam then
-			humanHogs = humanHogs + 1
-		end
-	end
-end
+function onGearAdd(gear) if GetGearType(gear) == gtHedgehog then trackGear(gear) end end
 
 function onGearDelete(gear)
-	if isATrackedGear(gear) then trackDeletion(gear) end
+	if GetGearType(gear) == gtHedgehog then trackDeletion(gear) end
 	
-	if GetGearType(gear) == gtHedgehog then	
-		if gear == king then
-			HeavenGone()
-			for i = 1,#enemy do SetHealth(enemy[i],0) end
-			EnemyGone = true
-		end
+	if GetGearType(gear) == gtHedgehog then
+		clan = GetHogClan(gear)
+		isHogFromPlayerTeam = GetHogTeamName(gear) == PlayerTeam
+		UpdateCounts()
 		
-		if gear == princess then
-			--cutscenePrincessGone = true
-			ConcludeGame(false,false,false)
-		end
-		if gear == angel and Heaven == true then
-			HeavenGone()
-		end
-		
-		if GetHogLevel(gear) == 0 and IsHogLocal(gear) == true and gear ~= princess then
-			humanHogs = humanHogs - 1
-			if humanHogs == 0 then
-				ConcludeGame(false,true,false)
-			end
-		end
-	end
-	
-	--[[if GetGearType(gear) == gtCase and GetGearMessage(gear) == 256 then
-		printDebug("a crate was collected at "..GetX(gear)..", "..GetY(gear) )
-	end]]--
-end
-
-function onHogRestore(gear)
-	if isATrackedGear(gear) then
-		trackGear(gear)
+		if gear == king then HeavenGone() for i = 1,#enemy do SetHealth(enemy[i],0) end end
+		if gear == princess then ConcludeGame(false,false,false) end
+		if gear == angel and Heaven == true then HeavenGone() end
 	end
 end
 
-function onHogHide(gear)
-	if isATrackedGear(gear) then
-		trackDeletion(gear)
-	end
-end
+function onHogRestore(gear)	if GetGearType(gear) == gtHedgehog then trackRestoring(gear) end end
+function onHogHide(gear) if GetGearType(gear) == gtHedgehog then trackHiding(gear) end end
 
 -- 
 -- mission specific stuff
 -- 
 
-function onGivenTurn()
-	SetTeamPassive(PrincessTeam,true)
-	if EnemyGone == true then SetTeamPassive(HelperTeam,true) end
-end
-
-function HeadInTheClouds(gear)
-	TestForStateOfGearInsideCircle(gear,CloudCircle)
-end
+function HeadInTheClouds(gear) TestForStateOfGearInsideCircle(gear,CloudCircle) end
 
 function PrincessHeal(gear)
 	if TestForGearInsideCircle(gear, PrincessCircle) == true then
@@ -594,20 +545,6 @@ end
 function onGearInsideCircle(gear, circle)
 	if GetGearType(gear) == gtHedgehog and circle == CloudCircle and gear ~= angel then
 		SetGearCollisionMask(gear, 0x0000)
-	end
-	if	GetHogLevel(CurrentHedgehog) == 0 and
-		circle == PrincessCircle and
-		CurrentHedgehog ~= princess and
-		PrincessFirst == true then
-		--printDebug("princess cutscene trigger")
-		triggered = CurrentHedgehog
-		cutscenePrincess = true
-	end
-	
-	if gear == princess and circle == RockCircle then
-		--printDebug("win trigger")
-		triggered = CurrentHedgehog
-		cutsceneWin = true
 	end
 end
 

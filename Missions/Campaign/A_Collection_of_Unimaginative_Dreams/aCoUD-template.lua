@@ -11,6 +11,8 @@ HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scr
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/circles.lua")
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/giveturn.lua")
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/finish.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/soundmasks.lua")
+HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/counthogs.lua")
 
 -- 
 -- vars
@@ -26,34 +28,9 @@ turnCounter = -1
 player = {}
 enemy = {}
 
-humanHogs = 0
-
 --
 -- library requirements
 --
-
-function isATrackedGear(gear)
-	if (GetGearType(gear) == gtHedgehog) then return true else return false end
-end
-
---[[
-function isATrackedGear(gear)
-	if 	(GetGearType(gear) == gtHedgehog) or
-		(GetGearType(gear) == gtExplosives) or
-		(GetGearType(gear) == gtMine) or
-		(GetGearType(gear) == gtSMine) or
-		(GetGearType(gear) == gtAirMine) or
-		(GetGearType(gear) == gtTarget) or
-		(GetGearType(gear) == gtKnife) or
-		(GetGearType(gear) == gtPortal) or
-		(GetGearType(gear) == gtCase)
-	then
-		return(true)
-	else
-		return(false)
-	end
-end
-]]--
 
 function AnimatePrerequisite()
     AnimUnWait()
@@ -81,7 +58,7 @@ end
 
 function SetupGameFlags()
 	ClearGameFlags()
-	EnableGameFlags(gfOneClanMode)
+	--EnableGameFlags(gfOneClanMode)
 end
 
 function SetupScheme()
@@ -146,7 +123,7 @@ function PopulateCrates()
 end
 
 -- 
--- cutscene stuff
+-- cutscenes
 -- 
 
 function animIntro()
@@ -161,10 +138,21 @@ function animIntro()
 		"Eliminate the enemy.".."|"..
 		"",-amBazooka, 0)
 		GiveTurn(PlayerTeam)
+		AddEvent(checkExample, {}, doExample, {}, 0)
 	end
     AddFunction({func = AfterIntro, args = {}})
 	AddAnim(animIntro)
 end
+
+--
+-- events
+--
+
+function checkExample()
+
+end
+
+function doExample()
 
 -- 
 -- HW functions
@@ -181,72 +169,45 @@ end
 
 function onGameTick()
 	AnimatePrerequisite()
+	if AnimInProgress() then AnimationInProgress = true	else AnimationInProgress = false end
 end
 
 function onGameTick20()
 end
 
-function onPrecise()
-	AnimationSkipping()
-end
+function onPrecise() AnimationSkipping() end
 
 function onGameStart()
 	SetupSprites()
 	SetupWeapons()
 	trackTeams()
+	CountHogs()
 end
 
 
-function onAmmoStoreInit()
-	PopulateCrates()
-end
+function onAmmoStoreInit() PopulateCrates() end
 
 function onNewTurn()
 	CheckGivenTurn()
-	
-	if AnimInProgress() == true then
-		--AnimFollowGear(triggered)
-		SetSoundMask(sndYesSir, true)
-		SetSoundMask(sndHmm, true)
-	else
-		SetSoundMask(sndYesSir, false)
-		SetSoundMask(sndHmm, false)
-	end
+	SoundMasks(0)
 end
 
-function onEndTurn()
-	SetSoundMask(sndYesSir, false)
-	SetSoundMask(sndHmm, false)
-end
+function onEndTurn() SoundMasks(1) end
 
-function onGearAdd(gear)
-	if isATrackedGear(gear) then trackGear(gear) end
-
-	if GetGearType(gear) == gtHedgehog then
-		if IsHogLocal(gear) == true then
-			humanHogs = humanHogs + 1
-		end
-	end
-end
+function onGearAdd(gear) if GetGearType(gear) == gtHedgehog then trackGear(gear) end end
 
 function onGearDelete(gear)
-	if isATrackedGear(gear) then trackDeletion(gear) end
+	if GetGearType(gear) == gtHedgehog then trackDeletion(gear) end
 	
-	if GetHogLevel(gear) == 0 and IsHogLocal(gear) == true then
-		humanHogs = humanHogs - 1
-		if humanHogs == 0 then
-			ConcludeGame(false,true,false)
-		end
+	if GetGearType(gear) == gtHedgehog then
+		clan = GetHogClan(gear)
+		isHogFromPlayerTeam = GetHogTeamName(gear) == PlayerTeam
+		UpdateCounts()
 	end
 end
 
-function onHogRestore(gear)
-	if isATrackedGear(gear) then trackGear(gear) end
-end
-
-function onHogHide(gear)
-	if isATrackedGear(gear) then trackDeletion(gear) end
-end
+function onHogRestore(gear)	if GetGearType(gear) == gtHedgehog then trackRestoring(gear) end end
+function onHogHide(gear) if GetGearType(gear) == gtHedgehog then trackHiding(gear) end end
 
 -- 
 -- mission specific stuff
