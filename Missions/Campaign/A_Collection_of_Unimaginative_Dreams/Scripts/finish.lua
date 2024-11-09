@@ -3,7 +3,7 @@
 --SaveCampaignVar("Progress", tostring(2314) )
 
 function ConcludeGame(result,silence,special)
-	if AnimInProgress() ~= true then
+	if AnimationInProgress ~= true then
 		EndTurn()
 		SendGameResultOff()
 		if result == true then
