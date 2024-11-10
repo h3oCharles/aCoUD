@@ -266,11 +266,11 @@ function animIntro()
 	AddSkipFunction(animIntro, SkipIntro, {})
 	local function AfterIntro()
 		ShowMission(missionName, "Objectives",
+		"Eliminate the enemy.".."|"..
 		"Escort the Princess to your starting position.".."|"..
 		" ".."|"..
 		"Hint: Focus on getting to the Princess, as Shine will focus on the enemy.".."|"..
 		"",-amSeduction, 0)
-		--"Eliminate the enemy.".."|"..
 		GiveTurn(PlayerTeam)
 		AddEvent(checkReinforcements, {}, doReinforcements, {}, 0)
 		AddEvent(checkPrincess, {}, doPrincess, {}, 0)
@@ -378,7 +378,7 @@ function animWin()
 	end
 	AddSkipFunction(animWin, SkipWin, {})
 	local function AfterWin()
-		ConcludeGame(true,false,false)
+		DisableGameFlags(gfOneClanMode)
 	end
 	AddFunction({func = AfterWin, args = {}})
 	AddAnim(animWin)
@@ -505,15 +505,23 @@ function onEndTurn() SoundMasks(1) end
 function onGearAdd(gear) if GetGearType(gear) == gtHedgehog then trackGear(gear) end end
 
 function onGearDelete(gear)
-	if GetGearType(gear) == gtHedgehog then trackDeletion(gear) end
-	
 	if GetGearType(gear) == gtHedgehog then
+		trackDeletion(gear)
 		clan = GetHogClan(gear)
 		isHogFromPlayerTeam = GetHogTeamName(gear) == PlayerTeam
 		UpdateCounts()
 		
 		if gear == king then HeavenGone() for i = 1,#enemy do SetHealth(enemy[i],0) end end
-		if gear == princess then ConcludeGame(false,false,false) end
+
+		if gear == princess then
+			EndTurn(true)
+			SetTeamPassive(PlayerTeam,true)
+			SetTeamPassive(PrincessTeam,true)
+			SetTeamPassive(AngelTeam,true)
+			SetTeamPassive(HelperTeam,true)
+			DisableGameFlags(gfOneClanMode)
+		end
+	
 		if gear == angel and Heaven == true then HeavenGone() end
 	end
 end
