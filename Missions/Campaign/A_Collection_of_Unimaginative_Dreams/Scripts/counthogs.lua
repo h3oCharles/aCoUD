@@ -22,7 +22,7 @@ function UpdateCounts()
 	--isHogFromPlayerTeam = GetHogTeamName(gear) == PlayerTeam
 	if clan == PlayerClan and isHogFromPlayerTeam == true then
 		playerHogs = playerHogs - 1
-		if playerHogs == 0 then ConcludeGame(false,true,false) end
+		--if playerHogs == 0 then ConcludeGame(false,true,false) end
 	elseif clan == EnemyClan then
 		enemyHogs = enemyHogs - 1
 	end
