@@ -8,7 +8,7 @@ HedgewarsScriptLoad("/Scripts/Utils.lua")
 HedgewarsScriptLoad("/Scripts/Animate.lua")
 
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/generic.lua")
-HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/circles.lua")
+--HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/circles.lua")
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/giveturn.lua")
 HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scripts/finish.lua")
 
@@ -16,7 +16,8 @@ HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scr
 -- vars
 -- 
 
-missionName = "Template"
+missionName = "Fool's Mate"
+missionIcon = 0
 missionID = -1
 
 --local hhs = {}
@@ -36,25 +37,6 @@ humanHogs = 0
 function isATrackedGear(gear)
 	if (GetGearType(gear) == gtHedgehog) then return true else return false end
 end
-
---[[
-function isATrackedGear(gear)
-	if 	(GetGearType(gear) == gtHedgehog) or
-		(GetGearType(gear) == gtExplosives) or
-		(GetGearType(gear) == gtMine) or
-		(GetGearType(gear) == gtSMine) or
-		(GetGearType(gear) == gtAirMine) or
-		(GetGearType(gear) == gtTarget) or
-		(GetGearType(gear) == gtKnife) or
-		(GetGearType(gear) == gtPortal) or
-		(GetGearType(gear) == gtCase)
-	then
-		return(true)
-	else
-		return(false)
-	end
-end
-]]--
 
 function AnimatePrerequisite()
     AnimUnWait()
@@ -86,7 +68,7 @@ function SetupGameFlags()
 end
 
 function SetupScheme()
-	TurnTime = 45 * 1000
+	TurnTime = 90 * 1000
 	Explosives = 0
 	MinesNum = 0
 	CaseFreq = 0
@@ -109,8 +91,9 @@ end
 function SetupTeams()
 	PlayerTeam,PlayerIndex = AddMissionTeam(-1)
 	player[1] = AddMissionHog(100)
+	SetGearAIHints(player[1], aihDoesntMatter)
 	
-	WPieceTeam,WPieceIndex = AddTeam(loc("White Pieces"), 0xddba56, "Simple", "Plane", "Default_qau", "norway")
+	WPieceTeam,WPieceIndex = AddTeam(loc("White Pieces"), 0xeedc97, "Simple", "Plane", "Default_qau", "norway")
 	white[1] = AddHog(loc("White Queenside Rook"), 3, 100, "TeamSoldier")
 	white[2] = AddHog(loc("White Queenside Knight"), 3, 100, "TeamSoldier")
 	white[3] = AddHog(loc("White Dark-Squared Bishop")	, 3, 100, "TeamSoldier")
@@ -120,7 +103,7 @@ function SetupTeams()
 	white[7] = AddHog(loc("White Kingside Knight"), 3, 100, "TeamSoldier")
 	white[8] = AddHog(loc("White Kingside Rook"), 3, 100, "TeamSoldier")
 	
-	WPawnTeam,WPawnIndex = AddTeam(loc("White Pawns"), 0xddba56, "Simple", "Plane", "Default_qau", "norway")
+	WPawnTeam,WPawnIndex = AddTeam(loc("White Pawns"), 0xeedc97, "Simple", "Plane", "Default_qau", "norway")
 	white[9]  = AddHog(loc("White a-Pawn"), 3, 100, "cap_team")
 	white[10] = AddHog(loc("White b-Pawn"), 3, 100, "cap_team")
 	white[11] = AddHog(loc("White c-Pawn"), 3, 100, "cap_team")
@@ -130,7 +113,7 @@ function SetupTeams()
 	white[15] = AddHog(loc("White g-Pawn"), 3, 100, "cap_team")
 	white[16] = AddHog(loc("White h-Pawn"), 3, 100, "cap_team")
 	
-	BPieceTeam,BPieceIndex = AddTeam(loc("Black Pieces"), 0x8b670d, "Simple", "Plane", "Default_qau", "united_states")
+	BPieceTeam,BPieceIndex = AddTeam(loc("Black Pieces"), 0x964d22, "Simple", "Plane", "Default_qau", "united_states")
 	black[1] = AddHog(loc("Black Queenside Rook"), 3, 100, "TeamSoldier")
 	black[2] = AddHog(loc("Black Queenside Knight"), 3, 100, "TeamSoldier")
 	black[3] = AddHog(loc("Black Dark-Squared Bishop"), 3, 100, "TeamSoldier")
@@ -140,7 +123,7 @@ function SetupTeams()
 	black[7] = AddHog(loc("Black Kingside Knight"), 3, 100, "TeamSoldier")
 	black[8] = AddHog(loc("Black Kingside Rook"), 3, 100, "TeamSoldier")
 	
-	WPawnsTeam,WPawnsIndex = AddTeam(loc("Black Pawns"), 0x8b670d, "Simple", "Plane", "Default_qau", "united_states")
+	BPawnTeam,BPawnIndex = AddTeam(loc("Black Pawns"), 0x964d22, "Simple", "Plane", "Default_qau", "united_states")
 	black[9]  = AddHog(loc("Black a-Pawn"), 3, 100, "cap_team")
 	black[10] = AddHog(loc("Black b-Pawn"), 3, 100, "cap_team")
 	black[11] = AddHog(loc("Black c-Pawn"), 3, 100, "cap_team")
@@ -158,12 +141,22 @@ end
 
 function SetupWeapons()
 	for i = 1,#player do
-		AddAmmo(player[i],amBazooka,100)
+		AddAmmo(player[i],amRope,100)
+		AddAmmo(player[i],amFirePunch,100)
 	end
 	
-	--for i = 1,#enemy do
-	--	AddAmmo(enemy[i],amGrenade,100)
-	--end
+	for i = 1,#white do
+		AddAmmo(white[i],amShotgun,100)
+		AddAmmo(white[i],amDEagle,100)
+		AddAmmo(white[i],amSniperRifle,100)
+	end
+	
+	for i = 1,#black do
+		AddAmmo(black[i],amShotgun,100)
+		AddAmmo(black[i],amDEagle,100)
+		AddAmmo(black[i],amSniperRifle,100)
+	end
+	
 end
 
 function SetupSprites()
@@ -184,6 +177,7 @@ end
 
 function animIntro()
 	animIntro = {
+	{func = AnimFollowGear, args = {player[1]}},
 	{func = AnimWait, args = {a,2.5*1000}},
 	{func = AnimSay, args = {player[1], "...?", SAY_THINK, 3*1000}}
 	}
@@ -191,8 +185,8 @@ function animIntro()
 	AddSkipFunction(animIntro, SkipIntro, {})
 	local function AfterIntro()
 		ShowMission(missionName, "Objectives",
-		"Eliminate the enemy.".."|"..
-		"",-amBazooka, 0)
+		"Checkmate White the quickest way possible.".."|"..
+		"",missionIcon, 0)
 		GiveTurn(PlayerTeam)
 	end
     AddFunction({func = AfterIntro, args = {}})
@@ -234,53 +228,68 @@ function onAmmoStoreInit()
 	PopulateCrates()
 end
 
-function onNewTurn()
-	CheckGivenTurn()
-	
-	if AnimInProgress() == true then
-		--AnimFollowGear(triggered)
-		SetSoundMask(sndYesSir, true)
-		SetSoundMask(sndHmm, true)
-	else
-		SetSoundMask(sndYesSir, false)
-		SetSoundMask(sndHmm, false)
-	end
-end
+function onNewTurn() CheckGivenTurn() end
 
-function onEndTurn()
-	SetSoundMask(sndYesSir, false)
-	SetSoundMask(sndHmm, false)
-end
+function onEndTurn() end
 
 function onGearAdd(gear)
-	if isATrackedGear(gear) then trackGear(gear) end
-
 	if GetGearType(gear) == gtHedgehog then
-		if IsHogLocal(gear) == true then
-			humanHogs = humanHogs + 1
-		end
+		trackGear(gear)
+		SetEffect(gear, heResurrectable, 1)
 	end
 end
 
 function onGearDelete(gear)
-	if isATrackedGear(gear) then trackDeletion(gear) end
-	
-	if GetHogLevel(gear) == 0 and IsHogLocal(gear) == true then
-		humanHogs = humanHogs - 1
-		if humanHogs == 0 then
-			ConcludeGame(false,true,false)
+	if GetGearType(gear) == gtHedgehog then
+		trackDeletion(gear)
+		
+		if gear == white[5] then
+			--EndTurn(true)
+			printDebug("passive")
+			--SetTeamPassive(WPieceTeam, true)
+			--SetTeamPassive(WPawnTeam, true)
+			--SetTeamPassive(BPieceTeam, true)
+			--SetTeamPassive(BPawnTeam, true)
+			
+			DismissTeam(WPieceTeam)
+			DismissTeam(WPawnTeam)
+			DismissTeam(BPieceTeam)
+			DismissTeam(BPawnTeam)
+			
+			DisableGameFlags(gfOneClanMode)
 		end
 	end
 end
 
-function onHogRestore(gear)
-	if isATrackedGear(gear) then trackGear(gear) end
-end
-
-function onHogHide(gear)
-	if isATrackedGear(gear) then trackDeletion(gear) end
-end
+function onHogRestore(gear)	if GetGearType(gear) == gtHedgehog then trackRestoring(gear) end end
+function onHogHide(gear) if GetGearType(gear) == gtHedgehog then trackHiding(gear) end end
 
 -- 
 -- mission specific stuff
 -- 
+
+function onGearDamage(gear, damage)
+	if GetGearType(gear) == gtHedgehog and
+		CurrentHedgehog == player[1] then
+		printDebug(GetHogName(gear) .. " has been tagged")
+		
+		if gear == white[14] then
+			printDebug("it's the white f-pawn")
+		elseif gear == white[15] then
+			printDebug("it's the white g-pawn")
+		elseif gear == black[13] then
+			printDebug("it's the black e-pawn")
+		elseif gear == black[4] then
+			printDebug("it's the black queen")
+		else
+			printDebug("no, that's not it")
+		end
+	end
+end
+
+function Checkmate()
+	printDebug("checkmate")
+	EndTurn(true)
+	SetEffect(white[5], heResurrectable, 0)
+	SetHealth(white[5],0)
+end

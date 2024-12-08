@@ -19,6 +19,7 @@ HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scr
 -- 
 
 missionName = "Castle"
+missionIcon = -amSeduction
 missionID = 1
 
 turnCounter = -1
@@ -174,10 +175,11 @@ function SetupWeapons()
 		AddAmmo(player[i],amParachute,100)
 		AddAmmo(player[i],amSwitch,3)
 		
-		--AddAmmo(player[i],amSnowball,100)
-		--AddAmmo(player[i],amRope,100)
-		--AddAmmo(player[i],amTeleport,100)
-		--AddAmmo(player[i],amGirder,100)
+		AddAmmo(player[i],amSnowball,100)
+		AddAmmo(player[i],amWatermelon,100)
+		AddAmmo(player[i],amRope,100)
+		AddAmmo(player[i],amTeleport,100)
+		AddAmmo(player[i],amGirder,100)
 	end
 	
 	for i = 1,#helper do
@@ -270,7 +272,7 @@ function animIntro()
 		"Escort the Princess to your starting position.".."|"..
 		" ".."|"..
 		"Hint: Focus on getting to the Princess, as Shine will focus on the enemy.".."|"..
-		"",-amSeduction, 0)
+		"",missionIcon, 0)
 		GiveTurn(PlayerTeam)
 		AddEvent(checkReinforcements, {}, doReinforcements, {}, 0)
 		AddEvent(checkPrincess, {}, doPrincess, {}, 0)
@@ -378,7 +380,8 @@ function animWin()
 	end
 	AddSkipFunction(animWin, SkipWin, {})
 	local function AfterWin()
-		DisableGameFlags(gfOneClanMode)
+		--DisableGameFlags(gfOneClanMode)
+		ConcludeGame(true)
 	end
 	AddFunction({func = AfterWin, args = {}})
 	AddAnim(animWin)
@@ -514,6 +517,7 @@ function onGearDelete(gear)
 		if gear == king then HeavenGone() for i = 1,#enemy do SetHealth(enemy[i],0) end end
 
 		if gear == princess then
+			--ConcludeGame(false)
 			EndTurn(true)
 			SetTeamPassive(PlayerTeam,true)
 			SetTeamPassive(PrincessTeam,true)

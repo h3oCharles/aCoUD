@@ -16,6 +16,7 @@ HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scr
 -- 
 
 missionName = "Island Hoppers"
+missionIcon = -amLowGravity
 missionID = -1
 
 --local hhs = {}
@@ -183,7 +184,7 @@ function animIntro()
 		loc("Guide each of the Island Hoppers to the approporiate island.") .. "|" ..
 		" " .. "|" ..
 		loc("All hedgehogs must survive.") .. "|" ..
-		"",-amLowGravity, 0)
+		"",missionIcon, 0)
 		GiveTurn(Hopper1Team)
 	end
     AddFunction({func = AfterIntro, args = {}})

@@ -19,6 +19,7 @@ HedgewarsScriptLoad("/Missions/Campaign/A_Collection_of_Unimaginative_Dreams/Scr
 -- 
 
 missionName = "Template"
+missionIcon = -amBazooka
 missionID = -1
 
 --local hhs = {}
@@ -128,6 +129,7 @@ end
 
 function animIntro()
 	animIntro = {
+	{func = AnimFollowGear, args = {player[1]}},
 	{func = AnimWait, args = {a,2.5*1000}},
 	{func = AnimSay, args = {player[1], "...?", SAY_THINK, 3*1000}}
 	}
@@ -136,7 +138,7 @@ function animIntro()
 	local function AfterIntro()
 		ShowMission(missionName, "Objectives",
 		"Eliminate the enemy.".."|"..
-		"",-amBazooka, 0)
+		"",missionIcon,0)
 		GiveTurn(PlayerTeam)
 		AddEvent(checkExample, {}, doExample, {}, 0)
 	end
@@ -153,6 +155,7 @@ function checkExample()
 end
 
 function doExample()
+end
 
 -- 
 -- HW functions
@@ -197,9 +200,8 @@ function onEndTurn() SoundMasks(1) end
 function onGearAdd(gear) if GetGearType(gear) == gtHedgehog then trackGear(gear) end end
 
 function onGearDelete(gear)
-	if GetGearType(gear) == gtHedgehog then trackDeletion(gear) end
-	
 	if GetGearType(gear) == gtHedgehog then
+		trackDeletion(gear)
 		clan = GetHogClan(gear)
 		isHogFromPlayerTeam = GetHogTeamName(gear) == PlayerTeam
 		UpdateCounts()
