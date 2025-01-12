@@ -1,3 +1,9 @@
+# status
+
+on Friday, 13th December, 2024, I broke my drive due to stress from upgrading to a new one. basically, i lost progress. there's the entire repo, sure, but everything else surrounding it got lost, including other projects, which also includes my motivation to continue. not only my motivation is on a low, but so is my patience. the way I'm trying to code this (which includes multiple scripts being loaded on top of each mission) makes everything so inconsistent I cannot fathom what's going on, and I cannot accept copy-pasting every repeating piece of code into a mission manually.
+
+i am putting this on an indefinite hiatus until someone has the patience to help me figure this out. this isn't a LuaAPI problem, this is a programming problem. shouldn't i be able to do it? i need someone to tell me that what I'm seeing makes sense (or not lol), and morally help me figure this out, whether it's workflow, code methodology, or whatever.
+
 # A Collection of Unimaginative Dreams
 
 This is _**A Collection of Unimaginative Dreams**_, a campaign for [Hedgewars](https://www.hedgewars.org/).
