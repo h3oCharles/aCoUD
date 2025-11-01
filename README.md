@@ -24,7 +24,7 @@ As you navigate these dreams, you’ll confront the limitations of imagination, 
 
 This will be a code dump for a campaign for [Hedgewars](https://www.hedgewars.org/) to showcase the potential of this game and my capabilities
 
-You're mainly interested in Missions/Campaign/A_Collection_of_Unimaginative_Dreams and Maps, as Missions/Training and Scripts/Multiplayer are tech demos of individual functions without any instructions
+You're mainly interested in ``Missions/Campaign/A_Collection_of_Unimaginative_Dreams`` and ``Maps``, as ``Missions/Training`` and ``Scripts/Multiplayer`` are tech demos of individual functions without any instructions
 
 for the campaign's internal scripts, check out the [repo's wiki](https://github.com/h3oCharles/aCoUD/wiki) 
 
@@ -32,7 +32,7 @@ I am not even close to finishing this, so for now, check out the [roadmap](https
 
 # Installation
 
-To make it work in-game, download the code as a ZIP file and extract it to reveal an "aCoUD-main" folder. Open it, select all contents, package it as a ZIP file, rename the extension to HWP, and [put it in your data folder](https://www.hedgewars.org/node/6761)
+To make it work in-game, download the code as a ``zip`` file and extract it to reveal an ``aCoUD-main`` folder. Open it, select all contents, package it as a ``zip`` file, rename the extension to ``hwp``, and [put it in your data folder](https://www.hedgewars.org/node/6761)
 
 # Contributing
 
