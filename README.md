@@ -1,12 +1,14 @@
 # status
 
-on Friday, 13th December, 2024, I broke my drive due to stress from upgrading to a new one. basically, i lost progress. there's the entire repo, sure, but everything else surrounding it got lost, including other projects, which also includes my motivation to continue. not only my motivation is on a low, but so is my patience. the way I'm trying to code this (which includes multiple scripts being loaded on top of each mission) makes everything so inconsistent I cannot fathom what's going on, and I cannot accept copy-pasting every repeating piece of code into a mission manually.
+Given how much my life has changed, and I got a suggestion for a different approach to making progress, I'd like to come back to this in January 2026. I need to start by writing a Python compiler for all missions before I move on with coding the rest of the missions. I need to start with a small sample size of missions first, before I move on to more missions, which would require me to write more libraries. I'm going to need all the moral support on this, so please check up on me and my progress!
 
-i am putting this on an indefinite hiatus until someone has the patience to help me figure this out. this isn't a LuaAPI problem, this is a programming problem. shouldn't i be able to do it? i need someone to tell me that what I'm seeing makes sense (or not lol), and morally help me figure this out, whether it's workflow, code methodology, or whatever.
+~~on Friday, 13th December, 2024, I broke my drive due to stress from upgrading to a new one. basically, i lost progress. there's the entire repo, sure, but everything else surrounding it got lost, including other projects, which also includes my motivation to continue. not only my motivation is on a low, but so is my patience. the way I'm trying to code this (which includes multiple scripts being loaded on top of each mission) makes everything so inconsistent I cannot fathom what's going on, and I cannot accept copy-pasting every repeating piece of code into a mission manually.~~
 
-# A Collection of Unimaginative Dreams
+~~i am putting this on an indefinite hiatus until someone has the patience to help me figure this out. this isn't a LuaAPI problem, this is a programming problem. shouldn't i be able to do it? i need someone to tell me that what I'm seeing makes sense (or not lol), and morally help me figure this out, whether it's workflow, code methodology, or whatever.~~
 
-This is _**A Collection of Unimaginative Dreams**_, a campaign for [Hedgewars](https://www.hedgewars.org/).
+# a Collection of Unimaginative Dreams
+
+This is _**a Collection of Unimaginative Dreams**_, a campaign for [Hedgewars](https://www.hedgewars.org/).
 
 Drawn into a world of dreams, you find yourself exploring a series of surreal landscapes that reflect the tangled threads of creativity and burnout.
 
@@ -20,9 +22,9 @@ As you navigate these dreams, you’ll confront the limitations of imagination, 
 
 # About
 
-this will be a code dump for a campaign for [Hedgewars](https://www.hedgewars.org/) to showcase the potential of this game, and my capabilities
+This will be a code dump for a campaign for [Hedgewars](https://www.hedgewars.org/) to showcase the potential of this game and my capabilities
 
-you're mainly interested in Missions/Campaign/A_Collection_of_Unimaginative_Dreams and Maps, as Missions/Training and Scripts/Multiplayer are tech demos of individual functions without any instructions
+You're mainly interested in Missions/Campaign/A_Collection_of_Unimaginative_Dreams and Maps, as Missions/Training and Scripts/Multiplayer are tech demos of individual functions without any instructions
 
 for the campaign's internal scripts, check out the [repo's wiki](https://github.com/h3oCharles/aCoUD/wiki) 
 
@@ -30,8 +32,15 @@ I am not even close to finishing this, so for now, check out the [roadmap](https
 
 # Installation
 
-to make it work in-game, download the code as a ZIP file and extract it to reveal an "aCoUD-main" folder. Open it, select all contents, package it as a ZIP file, rename the extension to HWP, and [put it in your data folder](https://www.hedgewars.org/node/6761)
+To make it work in-game, download the code as a ZIP file and extract it to reveal an "aCoUD-main" folder. Open it, select all contents, package it as a ZIP file, rename the extension to HWP, and [put it in your data folder](https://www.hedgewars.org/node/6761)
 
 # Contributing
 
-if anyone would like to contribute, please read [the knowledge base](https://www.hedgewars.org/kb/LuaAPI) and the [repo's wiki](https://github.com/h3oCharles/aCoUD/wiki) first before contacting me
+If anyone would like to contribute, please read [the knowledge base](https://www.hedgewars.org/kb/LuaAPI) and the [repo's wiki](https://github.com/h3oCharles/aCoUD/wiki) first before contacting me
+
+# AI-Generated Content Disclosure
+[Hedgewars is listed on Steam](https://store.steampowered.com/app/2223810/Hedgewars/). To match [Steam's AI-generated content Disclosure on Game Listings](https://steamcommunity.com/groups/steamworks/announcements/detail/3862463747997849619), I'll write what was generated by AI
+- ChatGPT has written the GitHub repo intro (needs to be rewritten)
+- ChatGPT has written some math-related snippets of code (they need to be marked in source, browse through all my chat histories to find each thing one by one)
+
+In short, if there's something AI-generated, it's either a placeholder or it's something very boring and can't be changed in a subjectively different manner. I'm ready to be proven wrong, though.
