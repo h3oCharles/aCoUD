@@ -6,9 +6,9 @@ Given how much my life has changed, and I got a suggestion for a different appro
 
 ~~i am putting this on an indefinite hiatus until someone has the patience to help me figure this out. this isn't a LuaAPI problem, this is a programming problem. shouldn't i be able to do it? i need someone to tell me that what I'm seeing makes sense (or not lol), and morally help me figure this out, whether it's workflow, code methodology, or whatever.~~
 
-# a Collection of Unimaginative Dreams
+# A Collection of Unimaginative Dreams
 
-This is _**a Collection of Unimaginative Dreams**_, a campaign for [Hedgewars](https://www.hedgewars.org/).
+This is _**A Collection of Unimaginative Dreams**_, a campaign for [Hedgewars](https://www.hedgewars.org/).
 
 Drawn into a world of dreams, you find yourself exploring a series of surreal landscapes that reflect the tangled threads of creativity and burnout.
 
