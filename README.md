@@ -1,10 +1,6 @@
 # status
 
-Given how much my life has changed, and I got a suggestion for a different approach to making progress, I'd like to come back to this in January 2026. I need to start by writing a Python compiler for all missions before I move on with coding the rest of the missions. I need to start with a small sample size of missions first, before I move on to more missions, which would require me to write more libraries. I'm going to need all the moral support on this, so please check up on me and my progress!
-
-~~on Friday, 13th December, 2024, I broke my drive due to stress from upgrading to a new one. basically, i lost progress. there's the entire repo, sure, but everything else surrounding it got lost, including other projects, which also includes my motivation to continue. not only my motivation is on a low, but so is my patience. the way I'm trying to code this (which includes multiple scripts being loaded on top of each mission) makes everything so inconsistent I cannot fathom what's going on, and I cannot accept copy-pasting every repeating piece of code into a mission manually.~~
-
-~~i am putting this on an indefinite hiatus until someone has the patience to help me figure this out. this isn't a LuaAPI problem, this is a programming problem. shouldn't i be able to do it? i need someone to tell me that what I'm seeing makes sense (or not lol), and morally help me figure this out, whether it's workflow, code methodology, or whatever.~~
+shame
 
 # A Collection of Unimaginative Dreams
 
