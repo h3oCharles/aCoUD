@@ -1,6 +1,6 @@
 # status
 
-shame
+[help.](https://hedgewars.org/node/9499)
 
 # A Collection of Unimaginative Dreams
 
